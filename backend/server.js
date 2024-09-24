@@ -7,7 +7,7 @@ const app = express();
 const cors = require("cors");
 require("dotenv").config();
 
-// Middleware
+// Middleware Update
 app.use(express.json()); // For parsing JSON request bodies
 app.use(cors()); // Enable CORS
 app.use("/uploads", express.static(path.join(__dirname, "uploads"))); // Serve images statically

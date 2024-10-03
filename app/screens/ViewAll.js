@@ -14,7 +14,7 @@ import { useCart } from "../components/CartContext";
 import LargeCard from "../components/LargeCard";
 import SmallCard from "../components/SmallCard";
 
-const API_BASE_URL = "http://192.168.8.159:5000";
+const API_BASE_URL = "http://192.168.8.169:5000";
 
 const ViewAll = ({ navigation }) => {
   const [products, setProducts] = useState([]);

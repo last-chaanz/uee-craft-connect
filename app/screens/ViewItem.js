@@ -11,7 +11,7 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import { useCart } from "../components/CartContext"; // Import the useCart hook
 
-const API_BASE_URL = "http://192.168.8.159:5000"; // Update this with your actual API base URL
+const API_BASE_URL = "http://192.168.8.169:5000"; // Update this with your actual API base URL
 
 const ViewItem = ({ route, navigation }) => {
   const [product, setProduct] = useState(null);

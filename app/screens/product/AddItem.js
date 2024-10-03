@@ -70,7 +70,7 @@ const AddItem = ({ navigation }) => {
     }
 
     try {
-      const response = await fetch("http://192.168.8.114:5000/api/products", {
+      const response = await fetch("http://192.168.1.185:5000/api/products", {
         method: "POST",
         body: formData,
         headers: {

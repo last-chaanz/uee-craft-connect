@@ -8,8 +8,8 @@ import {
   SafeAreaView,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { useCart } from "../components/CartContext"; // Import the useCart hook
-import CartItem from "../components/CartItem";
+import { useCart } from "../../components/CartContext"; // Import the useCart hook
+import CartItem from "../../components/CartItem";
 
 const CartScreen = ({ navigation }) => {
   const { cart, removeFromCart, updateQuantity, clearCart } = useCart();

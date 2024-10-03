@@ -5,6 +5,7 @@ import {
   TextInput,
   TouchableOpacity,
   StyleSheet,
+  Alert,
 } from "react-native";
 
 const LoginScreen = ({ navigation }) => {
@@ -12,13 +13,53 @@ const LoginScreen = ({ navigation }) => {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
+  const handleLogin = async () => {
+    try {
+      const response = await fetch("http://192.168.1.185:5000/api/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email,
+          password,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.status === 200) {
+        const userRole = data.user.role; // Get the user's role from the response
+
+        Alert.alert("Success", "Logged in successfully!", [
+          {
+            text: "OK",
+            onPress: () => {
+              if (userRole === "user") {
+                navigation.navigate("ViewAll"); // Navigate to ViewAll for users
+              } else if (userRole === "admin") {
+                navigation.navigate("SellerDashboard"); // Navigate to AdminDashboard for admins
+              } else {
+                // Handle other roles or default navigation
+                navigation.navigate("ViewAll");
+              }
+            },
+          },
+        ]);
+      } else {
+        Alert.alert("Error", data.msg || "Login failed! Please try again.");
+      }
+    } catch (error) {
+      console.error(error);
+      Alert.alert("Error", "An error occurred. Please try again.");
+    }
+  };
+
   return (
     <View style={styles.container}>
       {/* Header */}
       <Text style={styles.title}>Log In</Text>
-      <Text style={styles.subtitle}>
-        Please sign in to your existing account
-      </Text>
+      <Text style={styles.subtitle}>Please sign in to your existing account</Text>
 
       {/* Email Input */}
       <View style={styles.inputContainer}>
@@ -57,13 +98,8 @@ const LoginScreen = ({ navigation }) => {
       </View>
 
       {/* Log In Button */}
-      <TouchableOpacity style={styles.loginButton}>
-        <Text
-          style={styles.loginButtonText}
-          onPress={() => navigation.navigate("ViewAll")}
-        >
-          Log In
-        </Text>
+      <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
+        <Text style={styles.loginButtonText}>Log In</Text>
       </TouchableOpacity>
 
       {/* Footer */}

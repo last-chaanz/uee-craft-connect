@@ -7,6 +7,7 @@ import {
   StyleSheet,
   Alert,
 } from "react-native";
+import AsyncStorage from '@react-native-async-storage/async-storage'; // Import AsyncStorage
 
 const LoginScreen = ({ navigation }) => {
   const [email, setEmail] = useState("");
@@ -30,6 +31,9 @@ const LoginScreen = ({ navigation }) => {
 
       if (response.status === 200) {
         const userRole = data.user.role; // Get the user's role from the response
+
+        // Save the JWT token to AsyncStorage
+        await AsyncStorage.setItem('authToken', data.token);
 
         Alert.alert("Success", "Logged in successfully!", [
           {
@@ -101,17 +105,6 @@ const LoginScreen = ({ navigation }) => {
       <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
         <Text style={styles.loginButtonText}>Log In</Text>
       </TouchableOpacity>
-
-      {/* Footer */}
-      <Text style={styles.footerText}>
-        Don’t have an account?{" "}
-        <Text
-          style={styles.signUpText}
-          onPress={() => navigation.navigate("SignUpScreen")}
-        >
-          Sign Up
-        </Text>
-      </Text>
     </View>
   );
 };
@@ -174,15 +167,6 @@ const styles = StyleSheet.create({
   loginButtonText: {
     color: "#FFFFFF",
     fontSize: 18,
-    fontWeight: "bold",
-  },
-  footerText: {
-    color: "#B0B3B8",
-    fontSize: 14,
-    textAlign: "center",
-  },
-  signUpText: {
-    color: "#FF6F00",
     fontWeight: "bold",
   },
 });

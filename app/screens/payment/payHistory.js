@@ -4,6 +4,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import Icon from 'react-native-vector-icons/Ionicons';
 import jwtDecode from 'jwt-decode'; 
 import { format } from 'date-fns'; // Make sure to install date-fns
+import { API_BASE_URL } from "@env";
 
 const TransactionScreen = ({ navigation }) => {
   const [transactions, setTransactions] = useState([]);
@@ -29,7 +30,7 @@ const TransactionScreen = ({ navigation }) => {
   // Function to fetch transactions from the backend
   const fetchTransactions = async (userId) => {
     try {
-      const response = await fetch(`http://192.168.1.185:5000/api/payments?userid=${userId}`);
+      const response = await fetch(`${API_BASE_URL}/api/payments?userid=${userId}`);
       
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);

@@ -6,6 +6,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useCart } from '../../components/CartContext';
 import AsyncStorage from '@react-native-async-storage/async-storage'; // Make sure to import AsyncStorage
 import jwtDecode from 'jwt-decode'; // Import jwt-decode to decode the token
+import { API_BASE_URL } from "@env";
 
 const PaymentScreen = ({ route, navigation }) => {
   const { amount } = route.params; // Get the amount from the previous page
@@ -93,7 +94,7 @@ const PaymentScreen = ({ route, navigation }) => {
       const payload = { amount, name, cardNo: cardNo.replace(/\s/g, ''), expiryDate, cvn, userid }; // Include userid in payload
       console.log('Payload:', payload);
 
-      const response = await axios.post('http://192.168.1.185:5000/api/payments', payload);
+      const response = await axios.post(`${API_BASE_URL}/api/payments`, payload);
       console.log('Response:', response.data);
 
       if (response.status === 201) {

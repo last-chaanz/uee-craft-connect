@@ -11,6 +11,7 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
+import { API_BASE_URL } from "@env";
 
 const AddItem = ({ navigation }) => {
   const [itemName, setItemName] = useState("");
@@ -70,7 +71,7 @@ const AddItem = ({ navigation }) => {
     }
 
     try {
-      const response = await fetch("http://192.168.1.185:5000/api/products", {
+      const response = await fetch(`${API_BASE_URL}/api/products`, {
         method: "POST",
         body: formData,
         headers: {

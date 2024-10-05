@@ -8,9 +8,10 @@ import {
   Alert,
 } from "react-native";
 import Icon from "react-native-vector-icons/Ionicons";
+import { API_BASE_URL } from "@env";
 
 const SignUpScreen = ({ route, navigation }) => {
-  const { role } = route.params; 
+  const { role } = route.params;
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -25,7 +26,7 @@ const SignUpScreen = ({ route, navigation }) => {
     }
 
     try {
-      const response = await fetch("http://192.168.1.185:5000/api/register", {
+      const response = await fetch(`${API_BASE_URL}/api/register`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -62,7 +63,9 @@ const SignUpScreen = ({ route, navigation }) => {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Sign Up</Text>
-      <Text style={styles.subtitle}>Sign up as a {role === "admin" ? "Seller" : "Buyer"}</Text>
+      <Text style={styles.subtitle}>
+        Sign up as a {role === "admin" ? "Seller" : "Buyer"}
+      </Text>
 
       {/* Name Input */}
       <TextInput
@@ -135,7 +138,10 @@ const SignUpScreen = ({ route, navigation }) => {
       {/* Footer */}
       <Text style={styles.footerText}>
         Already have an account?{" "}
-        <Text style={styles.signInText} onPress={() => navigation.navigate("LoginScreen")}>
+        <Text
+          style={styles.signInText}
+          onPress={() => navigation.navigate("LoginScreen")}
+        >
           Sign In
         </Text>
       </Text>

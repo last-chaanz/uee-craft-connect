@@ -5,12 +5,12 @@ const SplashScreen = ({ navigation }) => {
   return (
     <View style={styles.container}>
       {/* Logo Image */}
-      <Image source={require("../assets/logo.webp")} style={styles.logo} />
+      <Image source={require("../../assets/logo.webp")} style={styles.logo} />
 
       {/* Get Started Button */}
       <TouchableOpacity
         style={styles.button}
-        onPress={() => navigation.navigate("LoginScreen")}
+        onPress={() => navigation.navigate("RoleSelectionScreen")}
       >
         <Text style={styles.buttonText}>Get Started</Text>
       </TouchableOpacity>

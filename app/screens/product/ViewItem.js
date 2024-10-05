@@ -9,9 +9,8 @@ import {
   Alert,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { useCart } from "../components/CartContext"; // Import the useCart hook
-
-const API_BASE_URL = "http://192.168.8.159:5000"; // Update this with your actual API base URL
+import { useCart } from "../../components/CartContext";
+import { API_BASE_URL } from "@env";
 
 const ViewItem = ({ route, navigation }) => {
   const [product, setProduct] = useState(null);

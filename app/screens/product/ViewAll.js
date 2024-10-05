@@ -10,11 +10,10 @@ import {
   TextInput,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { useCart } from "../components/CartContext";
-import LargeCard from "../components/LargeCard";
-import SmallCard from "../components/SmallCard";
-
-const API_BASE_URL = "http://192.168.8.159:5000";
+import { useCart } from "../../components/CartContext";
+import LargeCard from "../../components/LargeCard";
+import SmallCard from "../../components/SmallCard";
+import { API_BASE_URL } from "@env";
 
 const ViewAll = ({ navigation }) => {
   const [products, setProducts] = useState([]);

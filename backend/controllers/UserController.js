@@ -5,7 +5,7 @@ require("dotenv").config();
 
 const JWT_SECRET = process.env.JWT_SECRET;
 
-// Controller to register a new user by hashing their password and saving them to the database
+// Controller to register a new user by hashing their password and saving them to the database with the role passed in the request
 const registerUser = async (req, res) => {
   try {
     console.log(req.body);
@@ -14,7 +14,9 @@ const registerUser = async (req, res) => {
     // Check if the email is already registered
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-      return res.status(400).json({ error: "Email address is already registered" });
+      return res
+        .status(400)
+        .json({ error: "Email address is already registered" });
     }
 
     // Hash the password before saving
@@ -32,16 +34,15 @@ const registerUser = async (req, res) => {
     await newUser.save();
 
     // Return success response
-    return res.status(201).json({ 
+    return res.status(201).json({
       user: {
         id: newUser._id,
         name: newUser.name,
         email: newUser.email,
-        role: newUser.role
+        role: newUser.role,
       },
       message: "User registered successfully",
     });
-
   } catch (error) {
     // Return error response in case of failure
     console.error("Error registering user:", error);
@@ -53,7 +54,7 @@ const registerUser = async (req, res) => {
 const loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
-    
+
     // Check if the user exists
     const user = await User.findOne({ email });
     if (!user) {
@@ -63,14 +64,16 @@ const loginUser = async (req, res) => {
     // Validate password
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
-      return res.status(400).json({ msg: "Invalid password. Please try again." });
+      return res
+        .status(400)
+        .json({ msg: "Invalid password. Please try again." });
     }
 
     // Generate JWT token
     const token = jwt.sign(
       { userId: user._id, role: user.role, name: user.name, email: user.email },
       JWT_SECRET,
-      { expiresIn: '1h' } // Optional: Set token expiration
+      { expiresIn: "1h" } // Optional: Set token expiration
     );
 
     // Respond with token and user data
@@ -88,7 +91,6 @@ const loginUser = async (req, res) => {
     res.status(500).json({ msg: "An error occurred. Please try again later." });
   }
 };
-
 
 module.exports = {
   registerUser,

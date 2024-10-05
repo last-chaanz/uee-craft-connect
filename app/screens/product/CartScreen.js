@@ -18,6 +18,11 @@ const CartScreen = ({ navigation }) => {
     return cart.reduce((total, item) => total + item.price * item.quantity, 0);
   };
 
+  const handlePlaceOrder = () => {
+    const totalAmount = calculateTotal();
+    navigation.navigate("PaymentScreen",  { amount: totalAmount }); 
+  };
+
   const handleRemoveItem = (id) => {
     removeFromCart(id);
   };
@@ -71,7 +76,7 @@ const CartScreen = ({ navigation }) => {
           <Text style={styles.totalAmount}>$ {calculateTotal()}</Text>
         </View>
 
-        <TouchableOpacity style={styles.placeOrderButton}>
+        <TouchableOpacity style={styles.placeOrderButton} onPress={handlePlaceOrder}>
           <Text style={styles.placeOrderButtonText}>PLACE ORDER</Text>
         </TouchableOpacity>
       </View>

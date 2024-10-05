@@ -7,6 +7,7 @@ import {
   StyleSheet,
   Alert,
 } from "react-native";
+import { API_BASE_URL } from "@env";
 
 const LoginScreen = ({ navigation }) => {
   const [email, setEmail] = useState("");
@@ -15,7 +16,7 @@ const LoginScreen = ({ navigation }) => {
 
   const handleLogin = async () => {
     try {
-      const response = await fetch("http://192.168.1.185:5000/api/login", {
+      const response = await fetch(`${API_BASE_URL}/api/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -59,7 +60,9 @@ const LoginScreen = ({ navigation }) => {
     <View style={styles.container}>
       {/* Header */}
       <Text style={styles.title}>Log In</Text>
-      <Text style={styles.subtitle}>Please sign in to your existing account</Text>
+      <Text style={styles.subtitle}>
+        Please sign in to your existing account
+      </Text>
 
       {/* Email Input */}
       <View style={styles.inputContainer}>

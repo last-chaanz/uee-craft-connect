@@ -13,8 +13,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useCart } from "../../components/CartContext";
 import LargeCard from "../../components/LargeCard";
 import SmallCard from "../../components/SmallCard";
-
-const API_BASE_URL = "http://192.168.1.185:5000";
+import { API_BASE_URL } from "@env";
 
 const ViewAll = ({ navigation }) => {
   const [products, setProducts] = useState([]);

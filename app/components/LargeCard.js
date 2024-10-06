@@ -2,17 +2,14 @@ import React from "react";
 import { View, Text, Image, StyleSheet, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 
-const LargeCard = ({ image, title, subtitle, rating, onView }) => {
+const LargeCard = ({ image, title, subtitle, price, rating, onView }) => {
   return (
     <View style={styles.card}>
       <Image source={image} style={styles.image} />
       <View style={styles.content}>
         <Text style={styles.title}>{title}</Text>
         <Text style={styles.subtitle}>{subtitle}</Text>
-        <View style={styles.ratingContainer}>
-          <Ionicons name="star" size={16} color="orange" />
-          <Text style={styles.rating}>{rating.toFixed(1)}</Text>
-        </View>
+        <Text style={styles.price}>${price}.00</Text>
       </View>
       <TouchableOpacity style={styles.viewButton} onPress={onView}>
         <Text style={styles.viewButtonText}>VIEW</Text>
@@ -25,13 +22,13 @@ const styles = StyleSheet.create({
   card: {
     backgroundColor: "white",
     borderRadius: 10,
-    padding: 10,
-    margin: 10,
+    padding: 20,
+    margin: 5,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
-    elevation: 3,
+    elevation: 4,
   },
   image: {
     width: "100%",
@@ -48,6 +45,12 @@ const styles = StyleSheet.create({
   subtitle: {
     fontSize: 14,
     color: "gray",
+  },
+  price: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginTop: 5,
+    color: "green",
   },
   ratingContainer: {
     flexDirection: "row",

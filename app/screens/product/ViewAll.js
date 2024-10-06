@@ -14,6 +14,7 @@ import { useCart } from "../../components/CartContext";
 import LargeCard from "../../components/LargeCard";
 import SmallCard from "../../components/SmallCard";
 import { API_BASE_URL } from "@env";
+import Navbar from "../../components/Navbar";
 
 const ViewAll = ({ navigation }) => {
   const [products, setProducts] = useState([]);
@@ -56,6 +57,7 @@ const ViewAll = ({ navigation }) => {
       image={{ uri: `${API_BASE_URL}/${item.image}` }}
       title={item.name}
       subtitle={item.categories.join(" - ")}
+      price={item.price}
       rating={item.rating || 0}
       onAddToCart={() => handleAddToCart(item)}
       onView={() => navigation.navigate("ViewItem", { id: item._id })}
@@ -68,7 +70,7 @@ const ViewAll = ({ navigation }) => {
       title={item.name}
       subtitle={item.categories[0]}
       price={item.price}
-      onAddToCart={() => handleAddToCart(item)}
+      onView={() => navigation.navigate("ViewItem", { id: item._id })}
     />
   );
 
@@ -79,16 +81,13 @@ const ViewAll = ({ navigation }) => {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Ionicons name="arrow-back" size={24} color="black" />
+        <TouchableOpacity onPress={() => navigation.navigate("ProfileScreen")}>
+          <Ionicons name="person-circle-outline" size={32} color="white" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>All Products</Text>
+        <Text style={styles.headerTitle}>Craft Connect</Text>
         <View style={styles.headerIcons}>
-          <TouchableOpacity onPress={() => navigation.navigate("ProfileScreen")}>
-            <Ionicons name="person-outline" size={24} color="black" />
-          </TouchableOpacity>
           <TouchableOpacity onPress={() => navigation.navigate("CartScreen")}>
-            <Ionicons name="cart-outline" size={24} color="black" />
+            <Ionicons name="cart-outline" size={28} color="white" />
             {cart.length > 0 && (
               <View style={styles.cartBadge}>
                 <Text style={styles.cartBadgeText}>{cart.length}</Text>
@@ -118,7 +117,7 @@ const ViewAll = ({ navigation }) => {
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
       >
-        <Text style={styles.sectionTitle}>Featured Products</Text>
+        <Text style={styles.sectionTitle}>Most Selling Products</Text>
         <FlatList
           horizontal
           data={filteredProducts.slice(0, 5)}
@@ -128,7 +127,7 @@ const ViewAll = ({ navigation }) => {
           showsHorizontalScrollIndicator={false}
         />
 
-        <Text style={styles.sectionTitle}>All Products</Text>
+        <Text style={styles.sectionTitle}>All Available Products</Text>
         <FlatList
           data={filteredProducts}
           renderItem={renderProductCard}
@@ -137,6 +136,8 @@ const ViewAll = ({ navigation }) => {
           scrollEnabled={false}
         />
       </ScrollView>
+
+      <Navbar navigation={navigation} />
     </View>
   );
 };
@@ -150,14 +151,18 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    padding: 15,
-    backgroundColor: "white",
+    padding: 20,
+    height: 100,
+    backgroundColor: "#181C2E",
     borderBottomWidth: 1,
     borderBottomColor: "#e0e0e0",
+    borderBottomLeftRadius: 20,
+    borderBottomRightRadius: 20,
   },
   headerTitle: {
-    fontSize: 20,
+    fontSize: 25,
     fontWeight: "bold",
+    color: "orange",
   },
   headerIcons: {
     flexDirection: "row",
@@ -191,7 +196,8 @@ const styles = StyleSheet.create({
     paddingLeft: 15,
   },
   productList: {
-    padding: 10,
+    paddingHorizontal: 15, // Keep only horizontal padding to reduce space vertically
+    paddingBottom: 0,
   },
   cartBadge: {
     position: "absolute",
@@ -208,6 +214,19 @@ const styles = StyleSheet.create({
     color: "white",
     fontSize: 12,
     fontWeight: "bold",
+  },
+  navbar: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    padding: 15,
+    backgroundColor: "#fff",
+    borderTopWidth: 1,
+    borderTopColor: "#e0e0e0",
+  },
+  navLabel: {
+    textAlign: "center",
+    fontSize: 12,
+    color: "#333",
   },
 });
 

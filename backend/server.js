@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 const productRoutes = require("../backend/routes/ProductsRoute");
 const userRoutes = require("../backend/routes/UserRoute");
 const PaymentRoute = require("../backend/routes/PaymentRoute");
+const BidRoute = require("../backend/routes/BidRoute");
 const path = require("path");
 const app = express();
 const cors = require("cors");
@@ -17,6 +18,7 @@ app.use("/uploads", express.static(path.join(__dirname, "uploads"))); // Serve i
 app.use("/api", productRoutes);
 app.use("/api", userRoutes);
 app.use("/api",PaymentRoute);
+app.use("/api",BidRoute);
 
 
 // Connect to MongoDB

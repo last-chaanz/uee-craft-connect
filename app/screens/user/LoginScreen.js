@@ -7,7 +7,7 @@ import {
   StyleSheet,
   Alert,
 } from "react-native";
-import AsyncStorage from '@react-native-async-storage/async-storage'; // Import AsyncStorage
+import AsyncStorage from "@react-native-async-storage/async-storage"; // Import AsyncStorage
 import { API_BASE_URL } from "@env";
 
 const LoginScreen = ({ navigation }) => {
@@ -34,7 +34,7 @@ const LoginScreen = ({ navigation }) => {
         const userRole = data.user.role; // Get the user's role from the response
 
         // Save the JWT token to AsyncStorage
-        await AsyncStorage.setItem('authToken', data.token);
+        await AsyncStorage.setItem("authToken", data.token);
 
         Alert.alert("Success", "Logged in successfully!", [
           {

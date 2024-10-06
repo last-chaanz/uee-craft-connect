@@ -15,7 +15,7 @@ import { API_BASE_URL } from "@env";
 const ViewItem = ({ route, navigation }) => {
   const [product, setProduct] = useState(null);
   const [quantity, setQuantity] = useState(1);
-  const { cart, addToCart, loadCart } = useCart(); // Use the cart context
+  const { cart, addToCart, loadCart } = useCart();
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -42,13 +42,18 @@ const ViewItem = ({ route, navigation }) => {
     };
 
     fetchProduct();
-    loadCart(); // Load the latest cart data when the component mounts
+    loadCart();
   }, [route.params]);
 
   const handleAddToCart = () => {
     if (!product) return;
     addToCart(product, quantity);
     Alert.alert("Success", "Item added to cart!");
+  };
+
+  const handleMakeBid = () => {
+    // Navigate to the bidding page
+    navigation.navigate("BiddingPage", { productId: product._id });
   };
 
   if (!product) {
@@ -96,33 +101,59 @@ const ViewItem = ({ route, navigation }) => {
       <Text style={styles.descriptionTitle}>Description</Text>
       <Text style={styles.descriptionText}>{product.description}</Text>
 
-      <View style={styles.priceQuantityContainer}>
-        <Text style={styles.price}>${product.price}</Text>
-        <View style={styles.quantityContainer}>
-          <TouchableOpacity
-            onPress={() => setQuantity(Math.max(1, quantity - 1))}
-            style={styles.quantityButton}
-          >
-            <Ionicons name="remove" size={24} color="white" />
-          </TouchableOpacity>
-          <Text style={styles.quantityText}>{quantity}</Text>
-          <TouchableOpacity
-            onPress={() =>
-              setQuantity(Math.min(product.quantity, quantity + 1))
-            }
-            style={styles.quantityButton}
-          >
-            <Ionicons name="add" size={24} color="white" />
-          </TouchableOpacity>
-        </View>
-      </View>
+      {product.sellType === "normal" ? (
+        // Normal product section
+        <>
+          <View style={styles.priceQuantityContainer}>
+            <Text style={styles.price}>${product.price}</Text>
+            <View style={styles.quantityContainer}>
+              <TouchableOpacity
+                onPress={() => setQuantity(Math.max(1, quantity - 1))}
+                style={styles.quantityButton}
+              >
+                <Ionicons name="remove" size={24} color="white" />
+              </TouchableOpacity>
+              <Text style={styles.quantityText}>{quantity}</Text>
+              <TouchableOpacity
+                onPress={() =>
+                  setQuantity(Math.min(product.quantity, quantity + 1))
+                }
+                style={styles.quantityButton}
+              >
+                <Ionicons name="add" size={24} color="white" />
+              </TouchableOpacity>
+            </View>
+          </View>
 
-      <TouchableOpacity
-        style={styles.addToCartButton}
-        onPress={handleAddToCart}
-      >
-        <Text style={styles.addToCartButtonText}>ADD TO CART</Text>
-      </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.addToCartButton}
+            onPress={handleAddToCart}
+          >
+            <Text style={styles.addToCartButtonText}>ADD TO CART</Text>
+          </TouchableOpacity>
+        </>
+      ) : (
+        // Bidding product section
+        <>
+          <View style={styles.biddingInfoContainer}>
+            <View style={styles.biddingInfoItem}>
+              <Text style={styles.biddingInfoLabel}>Starting Price:</Text>
+              <Text style={styles.biddingInfoValue}>${product.price}</Text>
+            </View>
+            <View style={styles.biddingInfoItem}>
+              <Text style={styles.biddingInfoLabel}>Current Highest Bid:</Text>
+              <Text style={styles.biddingInfoValue}>${product.highestBid}</Text>
+            </View>
+          </View>
+
+          <TouchableOpacity
+            style={styles.makeBidButton}
+            onPress={handleMakeBid}
+          >
+            <Text style={styles.makeBidButtonText}>MAKE A BID</Text>
+          </TouchableOpacity>
+        </>
+      )}
     </ScrollView>
   );
 };
@@ -185,7 +216,6 @@ const styles = StyleSheet.create({
   },
   descriptionText: {
     paddingHorizontal: 15,
-    paddingBottom: 15,
     color: "gray",
     textAlign: "justify",
   },
@@ -237,6 +267,35 @@ const styles = StyleSheet.create({
   cartBadgeText: {
     color: "white",
     fontSize: 12,
+    fontWeight: "bold",
+  },
+  biddingInfoContainer: {
+    padding: 10,
+    backgroundColor: "#f0f0f0",
+    borderRadius: 12,
+    margin: 8,
+  },
+  biddingInfoItem: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 10,
+  },
+  biddingInfoLabel: {
+    fontWeight: "bold",
+  },
+  biddingInfoValue: {
+    color: "green",
+    fontWeight: "bold",
+  },
+  makeBidButton: {
+    backgroundColor: "#4CAF50",
+    padding: 15,
+    margin: 15,
+    borderRadius: 12,
+    alignItems: "center",
+  },
+  makeBidButtonText: {
+    color: "white",
     fontWeight: "bold",
   },
 });

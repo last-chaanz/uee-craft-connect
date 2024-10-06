@@ -85,7 +85,13 @@ const AddItem = ({ navigation }) => {
         Alert.alert("Success", "Product uploaded successfully", [
           {
             text: "OK",
-            onPress: () => navigation.navigate("ViewItem", { id: result._id }),
+            onPress: () => {
+              if (sellType === "normal") {
+                navigation.navigate("SellerNormalProduct", { id: result._id });
+              } else if (sellType === "bidding") {
+                navigation.navigate("SellerBiddingProduct", { id: result._id });
+              }
+            },
           },
         ]);
       } else {

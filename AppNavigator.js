@@ -14,34 +14,47 @@ import RoleSelectionScreen from "./app/screens/user/commonLogin";
 import SellerDashboard from "./app/screens/seller/sellerDashboard";
 import PaymentScreen from "./app/screens/payment/Payment";
 import payHistory from "./app/screens/payment/payHistory";
+import SellerBiddingProduct from "./app/screens/product/SellerBiddingProduct";
+import SellerNormalProduct from "./app/screens/product/SellerNormalProduct";
 
 const Stack = createStackNavigator();
 
 function AppNavigator() {
   return (
     <StripeProvider publishableKey="pk_test_51Q5jLmFdeM9eSzXpupdHdr6zXOGhM2JKig4j2wZFTGiHNE5bIOIM6tlHvH4kH2sgly4toiLf5ylSU9HByE4xDNRy00jdAlXMK4">
-    <NavigationContainer>
-      <Stack.Navigator
-        initialRouteName="SplashScreen"
-        screenOptions={{ headerShown: false }}
-      >
-        <Stack.Screen name="AddItem" component={AddItem} />
-        <Stack.Screen name="ViewItem" component={ViewItem} />
-        <Stack.Screen name="ViewAll" component={ViewAll} />
-        <Stack.Screen name="CartScreen" component={CartScreen} />
+      <NavigationContainer>
+        <Stack.Navigator
+          initialRouteName="SplashScreen"
+          screenOptions={{ headerShown: false }}
+        >
+          <Stack.Screen name="AddItem" component={AddItem} />
+          <Stack.Screen name="ViewItem" component={ViewItem} />
+          <Stack.Screen name="ViewAll" component={ViewAll} />
+          <Stack.Screen name="CartScreen" component={CartScreen} />
 
-        <Stack.Screen name="PaymentScreen" component={PaymentScreen} />
-        <Stack.Screen name="payHistory" component={payHistory} />
+          <Stack.Screen name="PaymentScreen" component={PaymentScreen} />
+          <Stack.Screen name="payHistory" component={payHistory} />
 
-        <Stack.Screen name="LoginScreen" component={LoginScreen} />
-        <Stack.Screen name="SignUpScreen" component={SignUpScreen} />
-        <Stack.Screen name="SplashScreen" component={SplashScreen} />
-        <Stack.Screen name="RoleSelectionScreen" component={RoleSelectionScreen} />
-        <Stack.Screen name="ProfileScreen" component={ProfileScreen} />
+          <Stack.Screen name="LoginScreen" component={LoginScreen} />
+          <Stack.Screen name="SignUpScreen" component={SignUpScreen} />
+          <Stack.Screen name="SplashScreen" component={SplashScreen} />
+          <Stack.Screen
+            name="RoleSelectionScreen"
+            component={RoleSelectionScreen}
+          />
+          <Stack.Screen name="ProfileScreen" component={ProfileScreen} />
 
-        <Stack.Screen name="SellerDashboard" component={SellerDashboard} />
-      </Stack.Navigator>
-    </NavigationContainer>
+          <Stack.Screen name="SellerDashboard" component={SellerDashboard} />
+          <Stack.Screen
+            name="SellerBiddingProduct"
+            component={SellerBiddingProduct}
+          />
+          <Stack.Screen
+            name="SellerNormalProduct"
+            component={SellerNormalProduct}
+          />
+        </Stack.Navigator>
+      </NavigationContainer>
     </StripeProvider>
   );
 }

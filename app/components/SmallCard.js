@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { View, Text, Image, StyleSheet, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 
-const SmallCard = ({ image, title, subtitle, price, onAddToCart }) => {
+const SmallCard = ({ image, title, subtitle, price, onView }) => {
   const [isLiked, setIsLiked] = useState(false);
 
   const toggleLike = () => {
@@ -24,8 +24,8 @@ const SmallCard = ({ image, title, subtitle, price, onAddToCart }) => {
           color={isLiked ? "red" : "red"}
         />
       </TouchableOpacity>
-      <TouchableOpacity style={styles.addButton} onPress={onAddToCart}>
-        <Ionicons name="add" size={24} color="white" />
+      <TouchableOpacity style={styles.addButton} onPress={onView}>
+        <Ionicons name="cart-outline" size={24} color="white" />
       </TouchableOpacity>
     </View>
   );
@@ -46,14 +46,14 @@ const styles = StyleSheet.create({
   },
   image: {
     width: "100%",
-    height: 120,
+    height: 100,
     borderRadius: 10,
   },
   content: {
-    marginTop: 10,
+    marginTop: 5,
   },
   title: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: "bold",
   },
   subtitle: {
@@ -61,9 +61,10 @@ const styles = StyleSheet.create({
     color: "gray",
   },
   price: {
-    fontSize: 14,
+    fontSize: 18,
     fontWeight: "bold",
     marginTop: 5,
+    color: "green",
   },
   likeButton: {
     position: "absolute",

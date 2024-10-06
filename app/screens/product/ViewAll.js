@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   View,
   Text,
@@ -6,22 +6,23 @@ import {
   FlatList,
   RefreshControl,
   TouchableOpacity,
-  ScrollView,
   TextInput,
+  StatusBar,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useCart } from "../../components/CartContext";
 import LargeCard from "../../components/LargeCard";
-import SmallCard from "../../components/SmallCard";
 import { API_BASE_URL } from "@env";
+import Navbar from "../../components/Navbar";
 
 const ViewAll = ({ navigation }) => {
   const [products, setProducts] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
   const { cart, addToCart, loadCart } = useCart();
   const [searchQuery, setSearchQuery] = useState("");
+  const [activeFilter, setActiveFilter] = useState("All");
 
-  const fetchProducts = async () => {
+  const fetchProducts = useCallback(async () => {
     try {
       const response = await fetch(`${API_BASE_URL}/api/products`);
       const data = await response.json();
@@ -33,69 +34,97 @@ const ViewAll = ({ navigation }) => {
     } catch (error) {
       console.error("Error fetching products:", error);
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetchProducts();
     loadCart();
-  }, []);
+  }, [fetchProducts, loadCart]);
 
-  const onRefresh = async () => {
+  const onRefresh = useCallback(async () => {
     setRefreshing(true);
     await fetchProducts();
     await loadCart();
     setRefreshing(false);
-  };
+  }, [fetchProducts, loadCart]);
 
-  const handleAddToCart = (product) => {
-    addToCart(product, 1);
-  };
-
-  const renderProductCard = ({ item }) => (
-    <LargeCard
-      image={{ uri: `${API_BASE_URL}/${item.image}` }}
-      title={item.name}
-      subtitle={item.categories.join(" - ")}
-      rating={item.rating || 0}
-      onAddToCart={() => handleAddToCart(item)}
-      onView={() => navigation.navigate("ViewItem", { id: item._id })}
-    />
+  const handleAddToCart = useCallback(
+    (product) => {
+      addToCart(product, 1);
+    },
+    [addToCart]
   );
 
-  const renderSmallCard = ({ item }) => (
-    <SmallCard
-      image={`${API_BASE_URL}/${item.image}`}
-      title={item.name}
-      subtitle={item.categories[0]}
-      price={item.price}
-      onAddToCart={() => handleAddToCart(item)}
-    />
+  const renderProductCard = useCallback(
+    ({ item }) => (
+      <LargeCard
+        image={{ uri: `${API_BASE_URL}/${item.image}` }}
+        title={item.name}
+        subtitle={item.categories.join(" - ")}
+        price={item.price}
+        sellType={item.sellType}
+        onAddToCart={() => handleAddToCart(item)}
+        onView={() => navigation.navigate("ViewItem", { id: item._id })}
+        product={item}
+      />
+    ),
+    [handleAddToCart, navigation]
   );
 
-  const filteredProducts = products.filter((product) =>
-    product.name.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredProducts = products.filter(
+    (product) =>
+      product.name.toLowerCase().includes(searchQuery.toLowerCase()) &&
+      (activeFilter === "All" ||
+        product.categories.includes(activeFilter) ||
+        product.sellType === activeFilter)
+  );
+
+  const filterOptions = [
+    "All",
+    ...new Set(products.flatMap((p) => p.categories)),
+    "normal",
+    "bidding",
+  ];
+
+  const renderFilterButton = (title) => (
+    <TouchableOpacity
+      style={[
+        styles.filterButton,
+        activeFilter === title && styles.activeFilterButton,
+      ]}
+      onPress={() => setActiveFilter(title)}
+    >
+      <Text
+        style={[
+          styles.filterButtonText,
+          activeFilter === title && styles.activeFilterButtonText,
+        ]}
+      >
+        {title === "normal"
+          ? "quick buy"
+          : title === "bidding"
+          ? "bid buy"
+          : title}
+      </Text>
+    </TouchableOpacity>
   );
 
   return (
     <View style={styles.container}>
+      <StatusBar barStyle="light-content" />
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Ionicons name="arrow-back" size={24} color="black" />
+        <TouchableOpacity onPress={() => navigation.navigate("ProfileScreen")}>
+          <Ionicons name="person-circle-outline" size={32} color="white" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>All Products</Text>
-        <View style={styles.headerIcons}>
-          <TouchableOpacity onPress={() => navigation.navigate("ProfileScreen")}>
-            <Ionicons name="person-outline" size={24} color="black" />
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => navigation.navigate("CartScreen")}>
-            <Ionicons name="cart-outline" size={24} color="black" />
-            {cart.length > 0 && (
-              <View style={styles.cartBadge}>
-                <Text style={styles.cartBadgeText}>{cart.length}</Text>
-              </View>
-            )}
-          </TouchableOpacity>
-        </View>
+        <Text style={styles.headerTitle}>Craft Connect</Text>
+        <TouchableOpacity onPress={() => navigation.navigate("CartScreen")}>
+          <Ionicons name="cart-outline" size={28} color="white" />
+          {cart.length > 0 && (
+            <View style={styles.cartBadge}>
+              <Text style={styles.cartBadgeText}>{cart.length}</Text>
+            </View>
+          )}
+        </TouchableOpacity>
       </View>
 
       <View style={styles.searchContainer}>
@@ -113,30 +142,27 @@ const ViewAll = ({ navigation }) => {
         />
       </View>
 
-      <ScrollView
+      <FlatList
+        ListHeaderComponent={
+          <FlatList
+            horizontal
+            data={filterOptions}
+            renderItem={({ item }) => renderFilterButton(item)}
+            keyExtractor={(item) => item}
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.filterList}
+          />
+        }
+        data={filteredProducts}
+        renderItem={renderProductCard}
+        keyExtractor={(item) => item._id}
+        contentContainerStyle={styles.productList}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
-      >
-        <Text style={styles.sectionTitle}>Featured Products</Text>
-        <FlatList
-          horizontal
-          data={filteredProducts.slice(0, 5)}
-          renderItem={renderSmallCard}
-          keyExtractor={(item) => item._id}
-          contentContainerStyle={styles.smallCardList}
-          showsHorizontalScrollIndicator={false}
-        />
+      />
 
-        <Text style={styles.sectionTitle}>All Products</Text>
-        <FlatList
-          data={filteredProducts}
-          renderItem={renderProductCard}
-          keyExtractor={(item) => item._id}
-          contentContainerStyle={styles.productList}
-          scrollEnabled={false}
-        />
-      </ScrollView>
+      <Navbar navigation={navigation} />
     </View>
   );
 };
@@ -150,54 +176,70 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    padding: 15,
-    backgroundColor: "white",
-    borderBottomWidth: 1,
-    borderBottomColor: "#e0e0e0",
+    paddingHorizontal: 20,
+    paddingTop: 35,
+    paddingBottom: 20,
+    backgroundColor: "#181C2E",
+    borderBottomEndRadius: 20,
+    borderBottomStartRadius: 20,
   },
   headerTitle: {
-    fontSize: 20,
+    fontSize: 25,
     fontWeight: "bold",
-  },
-  headerIcons: {
-    flexDirection: "row",
-    alignItems: "center",
+    color: "orange",
   },
   searchContainer: {
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: "white",
-    marginHorizontal: 15,
-    marginVertical: 10,
-    paddingHorizontal: 10,
-    borderRadius: 10,
-    elevation: 2,
+    margin: 15,
+    paddingHorizontal: 15,
+    borderRadius: 25,
+    elevation: 3,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
   },
   searchIcon: {
     marginRight: 10,
   },
   searchInput: {
     flex: 1,
-    paddingVertical: 10,
+    paddingVertical: 12,
     fontSize: 16,
   },
-  sectionTitle: {
-    fontSize: 22,
+  filterList: {
+    paddingHorizontal: 15,
+    paddingVertical: 10,
+  },
+  filterButton: {
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 20,
+    backgroundColor: "#e0e0e0",
+    marginRight: 10,
+  },
+  activeFilterButton: {
+    backgroundColor: "#181C2E",
+  },
+  filterButtonText: {
+    fontSize: 14,
     fontWeight: "bold",
-    padding: 15,
     color: "#333",
   },
-  smallCardList: {
-    paddingLeft: 15,
+  activeFilterButtonText: {
+    color: "white",
   },
   productList: {
-    padding: 10,
+    paddingHorizontal: 15,
+    paddingBottom: 80,
   },
   cartBadge: {
     position: "absolute",
     right: -6,
     top: -6,
-    backgroundColor: "red",
+    backgroundColor: "#FF6B6B",
     borderRadius: 10,
     width: 20,
     height: 20,

@@ -18,6 +18,8 @@ import SellerBiddingProduct from "./app/screens/product/SellerBiddingProduct";
 import SellerNormalProduct from "./app/screens/product/SellerNormalProduct";
 import SellerDashboardNew from "./app/screens/seller/sellerDashboardNew";
 import CommunityResources from "./app/screens/community&resources/communityResources";
+import analyticsDashboard from "./app/screens/seller/analyticsDashboard";
+import reviewsDashboard from "./app/screens/seller/reviewsDashboard";
 
 const Stack = createStackNavigator();
 
@@ -60,6 +62,9 @@ function AppNavigator() {
             name="CommunityResources"
             component={CommunityResources}
           />
+          <Stack.Screen name="Analytics" component={analyticsDashboard} />
+
+          <Stack.Screen name="Reviews" component={reviewsDashboard} />
         </Stack.Navigator>
       </NavigationContainer>
     </StripeProvider>

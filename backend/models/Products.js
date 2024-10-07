@@ -37,6 +37,11 @@ const productSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    state: {
+      type: String,
+      enum: ["started", "cancelled"],
+      default: "started",
+    }
   },
   {
     timestamps: true,

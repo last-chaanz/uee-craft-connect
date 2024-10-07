@@ -15,6 +15,9 @@ import { API_BASE_URL } from "@env";
 const SellerBiddingProduct = ({ route, navigation }) => {
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [biddingState, setBiddingState] = useState("");
+  const [highestBid, setHighestBid] = useState(null);
+  const [bidCount, setBidCount] = useState(0);
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -28,6 +31,9 @@ const SellerBiddingProduct = ({ route, navigation }) => {
             "/"
           )}`;
           setProduct({ ...data, fullImageUrl });
+          setBiddingState(data.state); // Set initial bidding state from the product data
+          fetchHighestBid(data.name);
+          fetchBidCount(data.name); 
         } else {
           Alert.alert("Error", data.error || "Failed to fetch product details");
         }
@@ -45,6 +51,41 @@ const SellerBiddingProduct = ({ route, navigation }) => {
     fetchProduct();
   }, [route.params]);
 
+  const fetchHighestBid = async (productName) => {
+    try {
+      const bidResponse = await fetch(`${API_BASE_URL}/api/highest-bid/${productName}`);
+      const highestBidData = await bidResponse.json();
+
+      if (bidResponse.ok) {
+        setHighestBid(highestBidData.highestBidAmount);
+      } else {
+        Alert.alert("Error", highestBidData.message || "Failed to fetch highest bid");
+      }
+    } catch (error) {
+      console.error("Error fetching highest bid:", error);
+      Alert.alert("Error", "Failed to fetch highest bid. Please try again.");
+    }
+  };
+
+  const fetchBidCount = async (productName) => {
+    try {
+      const countResponse = await fetch(`${API_BASE_URL}/api/bid-count/${productName}`);
+      const text = await countResponse.text(); // Get the response as text
+      
+      const countData = JSON.parse(text); // Try parsing the response as JSON
+  
+      if (countResponse.ok) {
+        setBidCount(countData.bidCount);
+      } else {
+        Alert.alert("Error", countData.message || "Failed to fetch bid count");
+      }
+    } catch (error) {
+      console.error("Error fetching bid count:", error);
+      Alert.alert("Error", "Failed to fetch bid count. Please try again.");
+    }
+  };
+  
+
   const handleCancelBidding = () => {
     Alert.alert(
       "Cancel Bidding",
@@ -58,15 +99,22 @@ const SellerBiddingProduct = ({ route, navigation }) => {
             try {
               setLoading(true);
               const response = await fetch(
-                `${API_BASE_URL}/api/products/${product._id}/cancel-bidding`,
-                { method: "POST" }
+                `${API_BASE_URL}/api/products/${product._id}`,
+                {
+                  method: "PUT",
+                  headers: {
+                    "Content-Type": "application/json",
+                  },
+                  body: JSON.stringify({ state: "cancelled" }),
+                }
               );
 
               if (response.ok) {
+                setBiddingState("cancelled"); // Update the bidding state
                 Alert.alert("Success", "Bidding cancelled successfully", [
                   {
                     text: "OK",
-                    onPress: () => navigation.navigate("SellerDashboard"),
+                    onPress: () => navigation.navigate("SellerAllProducts"),
                   },
                 ]);
               } else {
@@ -145,22 +193,27 @@ const SellerBiddingProduct = ({ route, navigation }) => {
           </Text>
         </View>
         <View style={styles.biddingInfoItem}>
-          <Ionicons name="time-outline" size={24} color="black" />
-          <Text style={styles.biddingInfoText}>Ends in: 2 days</Text>
+          <Ionicons name="cash-outline" size={24} color="black" />
+          <Text style={styles.biddingInfoText}>Highest Bid: ${highestBid}</Text>
         </View>
         <View style={styles.biddingInfoItem}>
           <Ionicons name="people-outline" size={24} color="black" />
-          <Text style={styles.biddingInfoText}>Current Bids: 5</Text>
+          <Text style={styles.biddingInfoText}>Total Bids: {bidCount}</Text>
         </View>
       </View>
 
-      <TouchableOpacity
-        style={styles.cancelButton}
-        onPress={handleCancelBidding}
-      >
-        <Ionicons name="close-circle-outline" size={24} color="white" />
-        <Text style={styles.cancelButtonText}>Cancel Bidding</Text>
-      </TouchableOpacity>
+      {biddingState !== "cancelled" && (
+        <TouchableOpacity style={styles.cancelButton} onPress={handleCancelBidding}>
+          <Ionicons 
+            name={biddingState === "started" ? "close-circle-outline" : "checkmark-circle-outline"} 
+            size={24} 
+            color="white" 
+          />
+          <Text style={styles.cancelButtonText}>
+            {biddingState === "started" ? "Cancel Bidding" : "Start Bidding"}
+          </Text>
+        </TouchableOpacity>
+      )}
     </ScrollView>
   );
 };
@@ -203,23 +256,16 @@ const styles = StyleSheet.create({
   infoContainer: {
     flexDirection: "row",
     flexWrap: "wrap",
-    alignItems: "center",
-    justifyContent: "space-evenly",
-    padding: 7,
-    width: "95%",
-    backgroundColor: "#f0f0f0",
-    alignSelf: "center",
-    borderRadius: 12,
+    padding: 15,
   },
   infoItem: {
     flexDirection: "row",
     alignItems: "center",
-    marginRight: 15,
-    marginBottom: 10,
+    marginRight: 10,
+    marginBottom: 5,
   },
   infoText: {
     marginLeft: 5,
-    color: "black",
   },
   descriptionTitle: {
     fontSize: 16,
@@ -227,10 +273,9 @@ const styles = StyleSheet.create({
     padding: 15,
   },
   descriptionText: {
-    paddingHorizontal: 15,
-    paddingBottom: 15,
-    color: "gray",
-    textAlign: "justify",
+    paddingLeft: 15,
+    paddingRight: 15,
+    marginBottom: 20,
   },
   biddingInfoContainer: {
     padding: 15,
@@ -248,23 +293,25 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   cancelButton: {
-    backgroundColor: "#FF9800",
     flexDirection: "row",
-    justifyContent: "center",
     alignItems: "center",
-    padding: 15,
+    justifyContent: "center",
+    backgroundColor: "#ff5733",
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 10,
     margin: 15,
-    borderRadius: 12,
   },
   cancelButtonText: {
-    color: "white",
-    fontWeight: "bold",
     marginLeft: 10,
+    color: "white",
+    fontSize: 16,
+    fontWeight: "bold",
   },
   errorText: {
-    fontSize: 18,
-    color: "#FF5252",
     textAlign: "center",
+    color: "red",
+    fontSize: 16,
     marginTop: 20,
   },
 });

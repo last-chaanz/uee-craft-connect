@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
+  TextInput,
   Image,
   TouchableOpacity,
   StyleSheet,
@@ -10,40 +11,113 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useCart } from "../../components/CartContext";
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import jwtDecode from 'jwt-decode';
 import { API_BASE_URL } from "@env";
 
 const ViewItem = ({ route, navigation }) => {
   const [product, setProduct] = useState(null);
   const [quantity, setQuantity] = useState(1);
+  const [bidAmount, setBidAmount] = useState("");
+  const [userId, setUserId] = useState(null);
+  const [currentHighestBid, setCurrentHighestBid] = useState(0);
+
   const { cart, addToCart, loadCart } = useCart();
 
-  useEffect(() => {
-    const fetchProduct = async () => {
-      try {
-        const { id } = route.params;
-        const response = await fetch(`${API_BASE_URL}/api/products/${id}`);
-        const data = await response.json();
-        if (response.ok) {
-          const fullImageUrl = `${API_BASE_URL}/${data.image.replace(
-            /\\/g,
-            "/"
-          )}`;
-          setProduct({ ...data, fullImageUrl });
-        } else {
-          Alert.alert("Error", data.error || "Failed to fetch product details");
-        }
-      } catch (error) {
-        console.error("Error fetching product:", error);
-        Alert.alert(
-          "Error",
-          "Failed to fetch product details. Please try again."
-        );
+  const loadToken = async () => {
+    try {
+      const token = await AsyncStorage.getItem('authToken');
+      if (token) {
+        const decodedToken = jwtDecode(token);
+        setUserId(decodedToken.userId);
       }
-    };
+    } catch (error) {
+      console.error("Error decoding token: ", error);
+    }
+  };
 
-    fetchProduct();
+  useEffect(() => {
+    loadToken();
     loadCart();
+  }, []);
+
+  const fetchProduct = async () => {
+    try {
+      const { id } = route.params;
+      const response = await fetch(`${API_BASE_URL}/api/products/${id}`);
+      const data = await response.json();
+      if (response.ok) {
+        const fullImageUrl = `${API_BASE_URL}/${data.image.replace(/\\/g, "/")}`;
+        setProduct({ ...data, fullImageUrl });
+        highbid(data); // Fetch highest bid after successfully fetching product
+      } else {
+        Alert.alert("Error", data.error || "Failed to fetch product details");
+      }
+    } catch (error) {
+      console.error("Error fetching product:", error);
+      Alert.alert("Error", "Failed to fetch product details. Please try again.");
+    }
+  };
+
+  const highbid = async (product) => {
+    try {
+      const bidResponse = await fetch(`${API_BASE_URL}/api/highest-bid/${product.name}`);
+      const highestBidData = await bidResponse.json();
+
+      if (bidResponse.ok) {
+        setCurrentHighestBid(highestBidData.highestBidAmount);
+      } else {
+        Alert.alert("Error", highestBidData.message || "Failed to fetch highest bid");
+      }
+    } catch (error) {
+      console.error("Error fetching highest bid:", error);
+      Alert.alert("Error", "Failed to fetch highest bid. Please try again.");
+    }
+  };
+
+  useEffect(() => {
+    fetchProduct();
   }, [route.params]);
+
+  const handleMakeBid = async () => {
+    if (!userId) {
+      Alert.alert("Error", "User not authenticated.");
+      return;
+    }
+
+    const parsedBidAmount = parseFloat(bidAmount);
+    if (isNaN(parsedBidAmount) || parsedBidAmount <= currentHighestBid) {
+      Alert.alert("Error", "Bid amount must be greater than the current highest bid.");
+      return;
+    }
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/bids`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          userid: userId,
+          bidamount: parsedBidAmount,
+          productName: product.name,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        Alert.alert("Success", data.message);
+        setBidAmount("");
+        highbid(product); // Refresh the highest bid after making a bid
+      } else {
+        Alert.alert("Error", data.error || "Failed to place the bid.");
+      }
+    } catch (error) {
+      console.error("Error placing bid:", error);
+      Alert.alert("Error", "Failed to place the bid. Please try again.");
+    }
+  };
 
   const handleAddToCart = () => {
     if (!product) return;
@@ -51,17 +125,8 @@ const ViewItem = ({ route, navigation }) => {
     Alert.alert("Success", "Item added to cart!");
   };
 
-  const handleMakeBid = () => {
-    // Navigate to the bidding page
-    navigation.navigate("BiddingPage", { productId: product._id });
-  };
-
   if (!product) {
-    return (
-      <View style={styles.container}>
-        <Text>Loading...</Text>
-      </View>
-    );
+    return <Text>Loading...</Text>;
   }
 
   return (
@@ -88,11 +153,7 @@ const ViewItem = ({ route, navigation }) => {
       <View style={styles.infoContainer}>
         {product.categories.map((category, index) => (
           <View key={index} style={styles.infoItem}>
-            <Ionicons
-              name="checkmark-done-circle-outline"
-              size={16}
-              color="black"
-            />
+            <Ionicons name="checkmark-done-circle-outline" size={16} color="black" />
             <Text style={styles.infoText}>{category}</Text>
           </View>
         ))}
@@ -102,7 +163,6 @@ const ViewItem = ({ route, navigation }) => {
       <Text style={styles.descriptionText}>{product.description}</Text>
 
       {product.sellType === "normal" ? (
-        // Normal product section
         <>
           <View style={styles.priceQuantityContainer}>
             <Text style={styles.price}>$ {product.price}.00</Text>
@@ -115,9 +175,7 @@ const ViewItem = ({ route, navigation }) => {
               </TouchableOpacity>
               <Text style={styles.quantityText}>{quantity}</Text>
               <TouchableOpacity
-                onPress={() =>
-                  setQuantity(Math.min(product.quantity, quantity + 1))
-                }
+                onPress={() => setQuantity(Math.min(product.quantity, quantity + 1))}
                 style={styles.quantityButton}
               >
                 <Ionicons name="add" size={24} color="white" />
@@ -125,15 +183,11 @@ const ViewItem = ({ route, navigation }) => {
             </View>
           </View>
 
-          <TouchableOpacity
-            style={styles.addToCartButton}
-            onPress={handleAddToCart}
-          >
+          <TouchableOpacity style={styles.addToCartButton} onPress={handleAddToCart}>
             <Text style={styles.addToCartButtonText}>ADD TO CART</Text>
           </TouchableOpacity>
         </>
       ) : (
-        // Bidding product section
         <>
           <View style={styles.biddingInfoContainer}>
             <View style={styles.biddingInfoItem}>
@@ -142,14 +196,20 @@ const ViewItem = ({ route, navigation }) => {
             </View>
             <View style={styles.biddingInfoItem}>
               <Text style={styles.biddingInfoLabel}>Current Highest Bid:</Text>
-              <Text style={styles.biddingInfoValue}>${product.highestBid}</Text>
+              <Text style={styles.biddingInfoValue}>${currentHighestBid}</Text>
             </View>
           </View>
+          
+          <TextInput
+            style={styles.input}
+            placeholder="Enter Bidding Amount"
+            placeholderTextColor="#B0B0B0"
+            value={bidAmount}
+            onChangeText={setBidAmount}
+            keyboardType="numeric" // Allow only numeric input
+          />
 
-          <TouchableOpacity
-            style={styles.makeBidButton}
-            onPress={handleMakeBid}
-          >
+          <TouchableOpacity style={styles.makeBidButton} onPress={handleMakeBid}>
             <Text style={styles.makeBidButtonText}>MAKE A BID</Text>
           </TouchableOpacity>
         </>
@@ -202,12 +262,9 @@ const styles = StyleSheet.create({
   infoItem: {
     flexDirection: "row",
     alignItems: "center",
-    marginRight: 15,
-    marginBottom: 10,
   },
   infoText: {
     marginLeft: 5,
-    color: "black",
   },
   descriptionTitle: {
     fontSize: 16,
@@ -215,43 +272,81 @@ const styles = StyleSheet.create({
     padding: 15,
   },
   descriptionText: {
-    paddingHorizontal: 15,
+    padding: 15,
     color: "gray",
-    textAlign: "justify",
   },
   priceQuantityContainer: {
     flexDirection: "row",
-    justifyContent: "space-between",
     alignItems: "center",
+    justifyContent: "space-between",
     padding: 15,
+    backgroundColor: "#f0f0f0",
+    borderRadius: 12,
   },
   price: {
-    fontSize: 24,
+    fontSize: 22,
     fontWeight: "bold",
   },
   quantityContainer: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#333",
-    borderRadius: 20,
   },
   quantityButton: {
+    backgroundColor: "#007bff",
     padding: 10,
+    borderRadius: 5,
+    marginHorizontal: 5,
   },
   quantityText: {
-    color: "white",
-    paddingHorizontal: 15,
+    fontSize: 18,
+    marginHorizontal: 10,
   },
   addToCartButton: {
-    backgroundColor: "orange",
+    backgroundColor: "#28a745",
     padding: 15,
-    margin: 15,
-    borderRadius: 12,
+    borderRadius: 5,
     alignItems: "center",
+    margin: 15,
   },
   addToCartButtonText: {
     color: "white",
+    fontSize: 18,
+  },
+  biddingInfoContainer: {
+    padding: 15,
+    backgroundColor: "#f0f0f0",
+    borderRadius: 12,
+    marginBottom: 15,
+  },
+  biddingInfoItem: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 10,
+  },
+  biddingInfoLabel: {
     fontWeight: "bold",
+  },
+  biddingInfoValue: {
+    fontWeight: "bold",
+    color: "green",
+  },
+  input: {
+    borderColor: "#ccc",
+    borderWidth: 1,
+    borderRadius: 5,
+    padding: 10,
+    margin: 15,
+  },
+  makeBidButton: {
+    backgroundColor: "#007bff",
+    padding: 15,
+    borderRadius: 5,
+    alignItems: "center",
+    margin: 15,
+  },
+  makeBidButtonText: {
+    color: "white",
+    fontSize: 18,
   },
   cartBadge: {
     position: "absolute",
@@ -266,37 +361,8 @@ const styles = StyleSheet.create({
   },
   cartBadgeText: {
     color: "white",
+    fontWeight: "bold",
     fontSize: 12,
-    fontWeight: "bold",
-  },
-  biddingInfoContainer: {
-    padding: 10,
-    backgroundColor: "#f0f0f0",
-    borderRadius: 12,
-    margin: 8,
-  },
-  biddingInfoItem: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginBottom: 10,
-  },
-  biddingInfoLabel: {
-    fontWeight: "bold",
-  },
-  biddingInfoValue: {
-    color: "green",
-    fontWeight: "bold",
-  },
-  makeBidButton: {
-    backgroundColor: "#4CAF50",
-    padding: 15,
-    margin: 15,
-    borderRadius: 12,
-    alignItems: "center",
-  },
-  makeBidButtonText: {
-    color: "white",
-    fontWeight: "bold",
   },
 });
 

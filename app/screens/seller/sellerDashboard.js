@@ -75,12 +75,9 @@ const SellerDashboard = ({ navigation }) => {
           <Icon name="chatbubbles-outline" size={50} color="#000" />
           <Text style={styles.gridText}>Community Chat</Text>
         </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.gridItem}
-          onPress={() => navigation.navigate("Bidding")}
-        >
+        <TouchableOpacity style={styles.gridItem} onPress={() => navigation.navigate("SellerAllProducts")}>
           <Icon name="cash-outline" size={50} color="#000" />
-          <Text style={styles.gridText}>Bidding</Text>
+          <Text style={styles.gridText}>Products</Text>
         </TouchableOpacity>
       </View>
 

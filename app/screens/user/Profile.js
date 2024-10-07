@@ -89,15 +89,9 @@ const ProfileScreen = ({ navigation }) => {
 
       {/* Bidding Section */}
       <View style={styles.optionContainer}>
-        <TouchableOpacity style={styles.optionItem}>
+        <TouchableOpacity style={styles.optionItem} onPress={() => navigation.navigate('BiddingScreen')}>
           <MaterialIcons name="gavel" size={24} color="#00C853" />
-          <Text style={styles.optionText}>Current Bidding</Text>
-          <Ionicons name="chevron-forward-outline" size={24} color="#ccc" />
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.optionItem}>
-          <Ionicons name="list" size={24} color="#673AB7" />
-          <Text style={styles.optionText}>Bidding History</Text>
+          <Text style={styles.optionText}>My Bidding</Text>
           <Ionicons name="chevron-forward-outline" size={24} color="#ccc" />
         </TouchableOpacity>
       </View>

@@ -76,8 +76,10 @@ const ViewAll = ({ navigation }) => {
       product.name.toLowerCase().includes(searchQuery.toLowerCase()) &&
       (activeFilter === "All" ||
         product.categories.includes(activeFilter) ||
-        product.sellType === activeFilter)
+        product.sellType === activeFilter) &&
+      product.state !== "cancelled" 
   );
+  
 
   const filterOptions = [
     "All",

@@ -3,8 +3,7 @@ const Product = require("../models/Products");
 // Create Product
 exports.createProduct = async (req, res) => {
   try {
-    const { name, sellType, price, quantity, categories, description } =
-      req.body;
+    const { name, sellType, price, quantity, categories, description } = req.body;
 
     // Check if an image file is uploaded
     const image = req.file ? req.file.path : null;
@@ -17,6 +16,7 @@ exports.createProduct = async (req, res) => {
       quantity,
       categories,
       description,
+      state: "started", // Automatically set state to "started"
     });
 
     const savedProduct = await newProduct.save();
@@ -26,29 +26,20 @@ exports.createProduct = async (req, res) => {
   }
 };
 
+
 // Update Product
 exports.updateProduct = async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, sellType, price, quantity, categories, description } =
-      req.body;
+    const updates = req.body;
 
-    // Check if an image file is uploaded
-    const image = req.file ? req.file.path : undefined; // If no image is uploaded, keep the old image
+    // If an image file is uploaded, include it in the updates, otherwise leave it unchanged
+    if (req.file) {
+      updates.image = req.file.path;
+    }
 
-    const updatedProduct = await Product.findByIdAndUpdate(
-      id,
-      {
-        name,
-        image,
-        sellType,
-        price,
-        quantity,
-        categories,
-        description,
-      },
-      { new: true }
-    );
+    // Update the product with only the provided fields
+    const updatedProduct = await Product.findByIdAndUpdate(id, updates, { new: true });
 
     if (!updatedProduct) {
       return res.status(404).json({ error: "Product not found" });
@@ -59,6 +50,7 @@ exports.updateProduct = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
 
 // Delete Product
 exports.deleteProduct = async (req, res) => {
@@ -93,6 +85,28 @@ exports.getProduct = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+// Get a Single Product by name
+// Get a Single Product by name
+exports.getProductByname = async (req, res) => {
+  const { name } = req.params;
+  
+  try {
+    const product = await Product.findOne({ name });
+    
+    if (!product) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+
+    res.status(200).json(product);
+  } catch (error) {
+    console.error("Error fetching products by product name:", error);
+    res.status(500).json({ error: "Failed to fetch product" });
+  }
+};
+
+
+
 
 // Get All Products
 exports.getAllProducts = async (req, res) => {

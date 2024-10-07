@@ -87,9 +87,9 @@ const AddItem = ({ navigation }) => {
             text: "OK",
             onPress: () => {
               if (sellType === "normal") {
-                navigation.navigate("SellerNormalProduct", { id: result._id });
+                navigation.navigate("SellerAllProducts", { id: result._id });
               } else if (sellType === "bidding") {
-                navigation.navigate("SellerBiddingProduct", { id: result._id });
+                navigation.navigate("SellerAllProducts", { id: result._id });
               }
             },
           },

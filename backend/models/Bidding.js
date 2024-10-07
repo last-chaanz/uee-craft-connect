@@ -15,7 +15,7 @@ const BidSchema = new mongoose.Schema({
   },
   state: {
     type: String,
-    enum: ["requested", "accepted", "rejected"],
+    enum: ["requested", "accepted", "rejected", "paid"],
     default: "requested",
   },
 });

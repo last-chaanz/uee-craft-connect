@@ -1,5 +1,5 @@
 const express = require('express');
-const { addBid , getBidsByProductName } = require('../controllers/BidController'); 
+const { addBid , getBidsByProductName, getHighestBid, bidCount , getBidsByUserid, updateBid} = require('../controllers/BidController'); 
 
 const router = express.Router();
 
@@ -7,6 +7,14 @@ const router = express.Router();
 router.post('/bids', addBid);
 
 router.get("/getBidsByProductName/:productName", getBidsByProductName);
+router.get("/getBidsByuserid/:userid", getBidsByUserid);
+
+router.get('/highest-bid/:productName', getHighestBid);
+
+router.get("/bid-count/:productName",bidCount);
+
+// Update a Product
+router.put("/updateBidState/:bidId",updateBid);
 
 
 module.exports = router;

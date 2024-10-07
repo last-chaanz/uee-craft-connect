@@ -13,7 +13,6 @@ router.post(
 // Update a Product
 router.put(
   "/products/:id",
-  upload.single("image"),
   ProductController.updateProduct
 );
 
@@ -22,6 +21,9 @@ router.delete("/products/:id", ProductController.deleteProduct);
 
 // Get a Single Product
 router.get("/products/:id", ProductController.getProduct);
+
+// Get a Single Product by name
+router.get("/getProductByName/:name", ProductController.getProductByname);
 
 // Get All Products
 router.get("/products", ProductController.getAllProducts);

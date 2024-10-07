@@ -5,23 +5,72 @@ import {
   TextInput,
   TouchableOpacity,
   StyleSheet,
+  Alert,
 } from "react-native";
-import Icon from "react-native-vector-icons/Ionicons"; // For eye icon (react-native-vector-icons must be installed)
+import Icon from "react-native-vector-icons/Ionicons";
 
-const SignUpScreen = ({ navigation }) => {
+const SignUpScreen = ({ route, navigation }) => {
+  const { role } = route.params; 
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [passwordVisible, setPasswordVisible] = useState(true);
   const [confirmPasswordVisible, setConfirmPasswordVisible] = useState(true);
+
+  const handleSignUp = async () => {
+    if (password !== confirmPassword) {
+      Alert.alert("Error", "Passwords do not match!");
+      return;
+    }
+
+    try {
+      const response = await fetch("http://192.168.1.185:5000/api/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name,
+          email,
+          password,
+          role,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.status === 201) {
+        Alert.alert(
+          "Success",
+          "User registered successfully! You will be redirected to the login screen.",
+          [
+            {
+              text: "OK",
+              onPress: () => navigation.navigate("LoginScreen"),
+            },
+          ]
+        );
+      } else {
+        Alert.alert("Error", data.msg || "Registration failed!");
+      }
+    } catch (error) {
+      Alert.alert("Error", "An error occurred. Please try again.");
+    }
+  };
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Sign Up</Text>
-      <Text style={styles.subtitle}>Please sign up to get started</Text>
+      <Text style={styles.subtitle}>Sign up as a {role === "admin" ? "Seller" : "Buyer"}</Text>
 
       {/* Name Input */}
       <TextInput
         style={styles.input}
-        placeholder="John doe"
+        placeholder="John Doe"
         placeholderTextColor="#A9A9A9"
+        value={name}
+        onChangeText={setName}
       />
 
       {/* Email Input */}
@@ -30,6 +79,8 @@ const SignUpScreen = ({ navigation }) => {
         placeholder="example@gmail.com"
         placeholderTextColor="#A9A9A9"
         keyboardType="email-address"
+        value={email}
+        onChangeText={setEmail}
       />
 
       {/* Password Input */}
@@ -39,6 +90,8 @@ const SignUpScreen = ({ navigation }) => {
           placeholder="Password"
           placeholderTextColor="#A9A9A9"
           secureTextEntry={passwordVisible}
+          value={password}
+          onChangeText={setPassword}
         />
         <TouchableOpacity
           style={styles.icon}
@@ -59,6 +112,8 @@ const SignUpScreen = ({ navigation }) => {
           placeholder="Re-type Password"
           placeholderTextColor="#A9A9A9"
           secureTextEntry={confirmPasswordVisible}
+          value={confirmPassword}
+          onChangeText={setConfirmPassword}
         />
         <TouchableOpacity
           style={styles.icon}
@@ -73,17 +128,14 @@ const SignUpScreen = ({ navigation }) => {
       </View>
 
       {/* Sign Up Button */}
-      <TouchableOpacity style={styles.button}>
+      <TouchableOpacity style={styles.button} onPress={handleSignUp}>
         <Text style={styles.buttonText}>Sign Up</Text>
       </TouchableOpacity>
 
       {/* Footer */}
       <Text style={styles.footerText}>
         Already have an account?{" "}
-        <Text
-          style={styles.signUInText}
-          onPress={() => navigation.navigate("LoginScreen")}
-        >
+        <Text style={styles.signInText} onPress={() => navigation.navigate("LoginScreen")}>
           Sign In
         </Text>
       </Text>
@@ -97,11 +149,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#0D0D2B",
     paddingHorizontal: 20,
     justifyContent: "center",
-  },
-  backButton: {
-    position: "absolute",
-    top: 50,
-    left: 20,
   },
   title: {
     color: "#FFFFFF",
@@ -149,7 +196,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     textAlign: "center",
   },
-  signUInText: {
+  signInText: {
     color: "#FF6F00",
     fontWeight: "bold",
   },

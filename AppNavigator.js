@@ -16,6 +16,8 @@ import PaymentScreen from "./app/screens/payment/Payment";
 import payHistory from "./app/screens/payment/payHistory";
 import SellerBiddingProduct from "./app/screens/product/SellerBiddingProduct";
 import SellerNormalProduct from "./app/screens/product/SellerNormalProduct";
+import SellerDashboardNew from "./app/screens/seller/sellerDashboardNew";
+import CommunityResources from "./app/screens/community&resources/communityResources";
 
 const Stack = createStackNavigator();
 
@@ -44,7 +46,7 @@ function AppNavigator() {
           />
           <Stack.Screen name="ProfileScreen" component={ProfileScreen} />
 
-          <Stack.Screen name="SellerDashboard" component={SellerDashboard} />
+          <Stack.Screen name="SellerDashboard" component={SellerDashboardNew} />
           <Stack.Screen
             name="SellerBiddingProduct"
             component={SellerBiddingProduct}
@@ -52,6 +54,11 @@ function AppNavigator() {
           <Stack.Screen
             name="SellerNormalProduct"
             component={SellerNormalProduct}
+          />
+
+          <Stack.Screen
+            name="CommunityResources"
+            component={CommunityResources}
           />
         </Stack.Navigator>
       </NavigationContainer>

@@ -22,10 +22,12 @@ const SellerDashboard = ({ navigation }) => {
       {/* Header */}
       <View style={styles.header}>
         <Text style={styles.title}>Product Seller</Text>
-        <Text style={styles.welcome}>Hi {sellerData.name}</Text>
+        <Text style={styles.welcome}>Hello {sellerData.name}</Text>
         <View style={styles.sellerInfo}>
           <Text style={styles.infoText}>Seller ID : {sellerData.id}</Text>
-          <Text style={styles.infoText}>Joined Date : {sellerData.joinedDate}</Text>
+          <Text style={styles.infoText}>
+            Joined Date : {sellerData.joinedDate}
+          </Text>
           <Text style={styles.infoText}>Status : {sellerData.status}</Text>
         </View>
         <TouchableOpacity style={styles.profileImageContainer}>
@@ -38,23 +40,38 @@ const SellerDashboard = ({ navigation }) => {
 
       {/* Grid for Menu Options */}
       <View style={styles.gridContainer}>
-        <TouchableOpacity style={styles.gridItem} onPress={() => navigation.navigate("Reports")}>
+        <TouchableOpacity
+          style={styles.gridItem}
+          onPress={() => navigation.navigate("Reports")}
+        >
           <Icon name="bar-chart-outline" size={50} color="#000" />
           <Text style={styles.gridText}>Reports</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.gridItem} onPress={() => navigation.navigate("Analytics")}>
+        <TouchableOpacity
+          style={styles.gridItem}
+          onPress={() => navigation.navigate("Analytics")}
+        >
           <Icon name="analytics-outline" size={50} color="#000" />
           <Text style={styles.gridText}>Analytics</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.gridItem} onPress={() => navigation.navigate("Reviews")}>
+        <TouchableOpacity
+          style={styles.gridItem}
+          onPress={() => navigation.navigate("Reviews")}
+        >
           <Icon name="chatbubble-outline" size={50} color="#000" />
           <Text style={styles.gridText}>Reviews</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.gridItem} onPress={() => navigation.navigate("CommunityResources")}>
+        <TouchableOpacity
+          style={styles.gridItem}
+          onPress={() => navigation.navigate("CommunityResources")}
+        >
           <Icon name="people-outline" size={50} color="#000" />
           <Text style={styles.gridText}>Community & Resources</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.gridItem} onPress={() => navigation.navigate("CommunityChat")}>
+        <TouchableOpacity
+          style={styles.gridItem}
+          onPress={() => navigation.navigate("CommunityChat")}
+        >
           <Icon name="chatbubbles-outline" size={50} color="#000" />
           <Text style={styles.gridText}>Community Chat</Text>
         </TouchableOpacity>
@@ -67,7 +84,7 @@ const SellerDashboard = ({ navigation }) => {
       {/* Floating Action Button */}
       <TouchableOpacity
         style={styles.floatingButton}
-        onPress={() => navigation.navigate('AddItem')} // Navigate to AddItem page
+        onPress={() => navigation.navigate("AddItem")} // Navigate to AddItem page
       >
         <Icon name="add" size={30} color="#FFF" />
       </TouchableOpacity>

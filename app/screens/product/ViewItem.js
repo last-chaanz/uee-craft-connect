@@ -165,7 +165,7 @@ const ViewItem = ({ route, navigation }) => {
       {product.sellType === "normal" ? (
         <>
           <View style={styles.priceQuantityContainer}>
-            <Text style={styles.price}>${product.price}</Text>
+            <Text style={styles.price}>$ {product.price}.00</Text>
             <View style={styles.quantityContainer}>
               <TouchableOpacity
                 onPress={() => setQuantity(Math.max(1, quantity - 1))}
@@ -192,7 +192,7 @@ const ViewItem = ({ route, navigation }) => {
           <View style={styles.biddingInfoContainer}>
             <View style={styles.biddingInfoItem}>
               <Text style={styles.biddingInfoLabel}>Starting Price:</Text>
-              <Text style={styles.biddingInfoValue}>${product.price}</Text>
+              <Text style={styles.biddingInfoValue}>$ {product.price}.00</Text>
             </View>
             <View style={styles.biddingInfoItem}>
               <Text style={styles.biddingInfoLabel}>Current Highest Bid:</Text>

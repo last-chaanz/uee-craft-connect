@@ -18,6 +18,10 @@ import SellerBiddingProduct from "./app/screens/product/SellerBiddingProduct";
 import SellerNormalProduct from "./app/screens/product/SellerNormalProduct";
 import SellerAllProducts from "./app/screens/seller/sellerProducts";
 import BiddingScreen from "./app/screens/payment/myBiddings";
+import SellerDashboardNew from "./app/screens/seller/sellerDashboardNew";
+import CommunityResources from "./app/screens/community&resources/communityResources";
+import analyticsDashboard from "./app/screens/seller/analyticsDashboard";
+import reviewsDashboard from "./app/screens/seller/reviewsDashboard";
 
 const Stack = createStackNavigator();
 
@@ -46,7 +50,7 @@ function AppNavigator() {
           />
           <Stack.Screen name="ProfileScreen" component={ProfileScreen} />
 
-          <Stack.Screen name="SellerDashboard" component={SellerDashboard} />
+          <Stack.Screen name="SellerDashboard" component={SellerDashboardNew} />
           <Stack.Screen
             name="SellerBiddingProduct"
             component={SellerBiddingProduct}
@@ -57,6 +61,14 @@ function AppNavigator() {
           />
           <Stack.Screen name="SellerAllProducts" component={SellerAllProducts} />
           <Stack.Screen name="BiddingScreen" component={BiddingScreen} />
+
+          <Stack.Screen
+            name="CommunityResources"
+            component={CommunityResources}
+          />
+          <Stack.Screen name="Analytics" component={analyticsDashboard} />
+
+          <Stack.Screen name="Reviews" component={reviewsDashboard} />
         </Stack.Navigator>
       </NavigationContainer>
     </StripeProvider>

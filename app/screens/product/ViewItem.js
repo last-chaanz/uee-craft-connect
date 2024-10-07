@@ -11,8 +11,8 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useCart } from "../../components/CartContext";
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import jwtDecode from 'jwt-decode';
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import jwtDecode from "jwt-decode";
 import { API_BASE_URL } from "@env";
 
 const ViewItem = ({ route, navigation }) => {
@@ -26,7 +26,7 @@ const ViewItem = ({ route, navigation }) => {
 
   const loadToken = async () => {
     try {
-      const token = await AsyncStorage.getItem('authToken');
+      const token = await AsyncStorage.getItem("authToken");
       if (token) {
         const decodedToken = jwtDecode(token);
         setUserId(decodedToken.userId);
@@ -47,7 +47,10 @@ const ViewItem = ({ route, navigation }) => {
       const response = await fetch(`${API_BASE_URL}/api/products/${id}`);
       const data = await response.json();
       if (response.ok) {
-        const fullImageUrl = `${API_BASE_URL}/${data.image.replace(/\\/g, "/")}`;
+        const fullImageUrl = `${API_BASE_URL}/${data.image.replace(
+          /\\/g,
+          "/"
+        )}`;
         setProduct({ ...data, fullImageUrl });
         highbid(data); // Fetch highest bid after successfully fetching product
       } else {
@@ -55,19 +58,27 @@ const ViewItem = ({ route, navigation }) => {
       }
     } catch (error) {
       console.error("Error fetching product:", error);
-      Alert.alert("Error", "Failed to fetch product details. Please try again.");
+      Alert.alert(
+        "Error",
+        "Failed to fetch product details. Please try again."
+      );
     }
   };
 
   const highbid = async (product) => {
     try {
-      const bidResponse = await fetch(`${API_BASE_URL}/api/highest-bid/${product.name}`);
+      const bidResponse = await fetch(
+        `${API_BASE_URL}/api/highest-bid/${product.name}`
+      );
       const highestBidData = await bidResponse.json();
 
       if (bidResponse.ok) {
         setCurrentHighestBid(highestBidData.highestBidAmount);
       } else {
-        Alert.alert("Error", highestBidData.message || "Failed to fetch highest bid");
+        Alert.alert(
+          "Error",
+          highestBidData.message || "Failed to fetch highest bid"
+        );
       }
     } catch (error) {
       console.error("Error fetching highest bid:", error);
@@ -87,7 +98,10 @@ const ViewItem = ({ route, navigation }) => {
 
     const parsedBidAmount = parseFloat(bidAmount);
     if (isNaN(parsedBidAmount) || parsedBidAmount <= currentHighestBid) {
-      Alert.alert("Error", "Bid amount must be greater than the current highest bid.");
+      Alert.alert(
+        "Error",
+        "Bid amount must be greater than the current highest bid."
+      );
       return;
     }
 
@@ -153,7 +167,11 @@ const ViewItem = ({ route, navigation }) => {
       <View style={styles.infoContainer}>
         {product.categories.map((category, index) => (
           <View key={index} style={styles.infoItem}>
-            <Ionicons name="checkmark-done-circle-outline" size={16} color="black" />
+            <Ionicons
+              name="checkmark-done-circle-outline"
+              size={16}
+              color="green"
+            />
             <Text style={styles.infoText}>{category}</Text>
           </View>
         ))}
@@ -171,19 +189,24 @@ const ViewItem = ({ route, navigation }) => {
                 onPress={() => setQuantity(Math.max(1, quantity - 1))}
                 style={styles.quantityButton}
               >
-                <Ionicons name="remove" size={24} color="white" />
+                <Ionicons name="remove" size={16} color="white" />
               </TouchableOpacity>
               <Text style={styles.quantityText}>{quantity}</Text>
               <TouchableOpacity
-                onPress={() => setQuantity(Math.min(product.quantity, quantity + 1))}
+                onPress={() =>
+                  setQuantity(Math.min(product.quantity, quantity + 1))
+                }
                 style={styles.quantityButton}
               >
-                <Ionicons name="add" size={24} color="white" />
+                <Ionicons name="add" size={16} color="white" />
               </TouchableOpacity>
             </View>
           </View>
 
-          <TouchableOpacity style={styles.addToCartButton} onPress={handleAddToCart}>
+          <TouchableOpacity
+            style={styles.addToCartButton}
+            onPress={handleAddToCart}
+          >
             <Text style={styles.addToCartButtonText}>ADD TO CART</Text>
           </TouchableOpacity>
         </>
@@ -196,10 +219,12 @@ const ViewItem = ({ route, navigation }) => {
             </View>
             <View style={styles.biddingInfoItem}>
               <Text style={styles.biddingInfoLabel}>Current Highest Bid:</Text>
-              <Text style={styles.biddingInfoValue}>${currentHighestBid}</Text>
+              <Text style={styles.biddingInfoValue}>
+                $ {currentHighestBid}.00
+              </Text>
             </View>
           </View>
-          
+
           <TextInput
             style={styles.input}
             placeholder="Enter Bidding Amount"
@@ -209,7 +234,10 @@ const ViewItem = ({ route, navigation }) => {
             keyboardType="numeric" // Allow only numeric input
           />
 
-          <TouchableOpacity style={styles.makeBidButton} onPress={handleMakeBid}>
+          <TouchableOpacity
+            style={styles.makeBidButton}
+            onPress={handleMakeBid}
+          >
             <Text style={styles.makeBidButtonText}>MAKE A BID</Text>
           </TouchableOpacity>
         </>
@@ -237,7 +265,7 @@ const styles = StyleSheet.create({
   },
   image: {
     width: "95%",
-    height: 250,
+    height: 240,
     alignSelf: "center",
     resizeMode: "cover",
     borderRadius: 32,
@@ -262,6 +290,7 @@ const styles = StyleSheet.create({
   infoItem: {
     flexDirection: "row",
     alignItems: "center",
+    padding: 5,
   },
   infoText: {
     marginLeft: 5,
@@ -280,48 +309,54 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     padding: 15,
-    backgroundColor: "#f0f0f0",
+    backgroundColor: "#F0F5FA",
     borderRadius: 12,
   },
   price: {
     fontSize: 22,
     fontWeight: "bold",
+    color: "green",
   },
   quantityContainer: {
+    backgroundColor: "#121223",
     flexDirection: "row",
     alignItems: "center",
+    padding: 8,
+    paddingVertical: 10,
+    borderRadius: 20,
   },
   quantityButton: {
-    backgroundColor: "#007bff",
-    padding: 10,
-    borderRadius: 5,
+    backgroundColor: "gray",
+    padding: 5,
+    borderRadius: 30,
     marginHorizontal: 5,
   },
   quantityText: {
     fontSize: 18,
+    color: "white",
     marginHorizontal: 10,
   },
   addToCartButton: {
-    backgroundColor: "#28a745",
+    backgroundColor: "orange",
     padding: 15,
-    borderRadius: 5,
+    borderRadius: 15,
     alignItems: "center",
-    margin: 15,
+    margin: 10,
   },
   addToCartButtonText: {
-    color: "white",
-    fontSize: 18,
+    color: "#003366",
+    fontSize: 16,
+    fontWeight: "bold",
   },
   biddingInfoContainer: {
     padding: 15,
-    backgroundColor: "#f0f0f0",
+    backgroundColor: "#F0F5FA",
     borderRadius: 12,
-    marginBottom: 15,
   },
   biddingInfoItem: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginBottom: 10,
+    marginBottom: 2,
   },
   biddingInfoLabel: {
     fontWeight: "bold",
@@ -338,15 +373,16 @@ const styles = StyleSheet.create({
     margin: 15,
   },
   makeBidButton: {
-    backgroundColor: "#007bff",
+    backgroundColor: "orange",
     padding: 15,
-    borderRadius: 5,
+    borderRadius: 15,
     alignItems: "center",
     margin: 15,
   },
   makeBidButtonText: {
-    color: "white",
-    fontSize: 18,
+    color: "#003366",
+    fontSize: 16,
+    fontWeight: "bold",
   },
   cartBadge: {
     position: "absolute",

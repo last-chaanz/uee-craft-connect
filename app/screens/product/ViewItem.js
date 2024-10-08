@@ -75,10 +75,7 @@ const ViewItem = ({ route, navigation }) => {
       if (bidResponse.ok) {
         setCurrentHighestBid(highestBidData.highestBidAmount);
       } else {
-        Alert.alert(
-          "Error",
-          highestBidData.message || "Failed to fetch highest bid"
-        );
+        setCurrentHighestBid(0);
       }
     } catch (error) {
       console.error("Error fetching highest bid:", error);
@@ -230,7 +227,17 @@ const ViewItem = ({ route, navigation }) => {
             placeholder="Enter Bidding Amount"
             placeholderTextColor="#B0B0B0"
             value={bidAmount}
-            onChangeText={setBidAmount}
+            onChangeText={(text) => {
+              const enteredBidAmount = parseFloat(text);
+              if (!isNaN(enteredBidAmount) && enteredBidAmount <= currentHighestBid) {
+                Alert.alert(
+                  "Error",
+                  `Bid amount must be greater than the current highest bid of $${currentHighestBid}.`
+                );
+              } else {
+                setBidAmount(text); // Only update bidAmount if it passes validation
+              }
+            }}
             keyboardType="numeric" // Allow only numeric input
           />
 

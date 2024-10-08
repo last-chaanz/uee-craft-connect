@@ -9,6 +9,7 @@ const BiddingScreen = ({ route, navigation }) => {
   const [bids, setBids] = useState([]);
   const [loading, setLoading] = useState(true); // Loading state
   const [userid, setUserid] = useState('');
+  const [filterState, setFilterState] = useState('all'); // Add filter state
 
   // Function to load the token and fetch user data
   const loadToken = async () => {
@@ -23,15 +24,13 @@ const BiddingScreen = ({ route, navigation }) => {
     }
   };
 
-  // Use effect to load the token when the component mounts
   useEffect(() => {
     loadToken();
   }, []);
 
-  // Fetch product by name to get the state
   const fetchProductState = async (name) => {
     try {
-        const response = await fetch(`${API_BASE_URL}/api/getProductByName/${(name)}`);
+      const response = await fetch(`${API_BASE_URL}/api/getProductByName/${name}`);
       if (!response.ok) {
         throw new Error(`Error fetching product state: ${response.status}`);
       }
@@ -43,7 +42,6 @@ const BiddingScreen = ({ route, navigation }) => {
     }
   };
 
-  // Fetch highest bid for a product by name
   const fetchHighestBid = async (productName) => {
     try {
       const response = await fetch(`${API_BASE_URL}/api/highest-bid/${productName}`);
@@ -58,21 +56,20 @@ const BiddingScreen = ({ route, navigation }) => {
     }
   };
 
-  // Function to update bid state in the backend
-const updateBidState = async (bidId, newState) => {
+  const updateBidState = async (bidId, newState) => {
     try {
       const response = await fetch(`${API_BASE_URL}/api/updateBidState/${bidId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ newState }), // Send the new state in the body
+        body: JSON.stringify({ newState }),
       });
-  
+
       if (!response.ok) {
         throw new Error(`Error updating bid state: ${response.status}`);
       }
-  
+
       const updatedBid = await response.json();
       return updatedBid;
     } catch (error) {
@@ -80,7 +77,7 @@ const updateBidState = async (bidId, newState) => {
       return null;
     }
   };
-  
+
   const fetchBids = async () => {
     if (!userid) return;
     try {
@@ -88,21 +85,18 @@ const updateBidState = async (bidId, newState) => {
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-  
+
       const data = await response.json();
       const updatedBids = await Promise.all(data.map(async (bid) => {
-        // Skip updating if the bid is already paid
         if (bid.state === 'paid') {
           return bid;
         }
-  
-        // Extract productName from each bid
+
         const productState = await fetchProductState(bid.productName);
         const highestBid = await fetchHighestBid(bid.productName);
-  
+
         let newState = bid.state;
-  
-        // Update state based on product state and highest bid logic
+
         if (productState === 'started') {
           newState = 'requested';
         } else if (productState === 'cancelled') {
@@ -112,68 +106,65 @@ const updateBidState = async (bidId, newState) => {
             newState = 'rejected';
           }
         }
-  
-        // If state changes, update bid
+
         if (newState !== bid.state) {
           const updatedBid = await updateBidState(bid._id, newState);
           return updatedBid ? updatedBid : bid;
         }
-  
+
         return bid;
       }));
-  
-      setBids(updatedBids); // Set the bids with updated states
+
+      setBids(updatedBids);
     } catch (error) {
       console.error('Error fetching bids: ', error);
     } finally {
       setLoading(false);
     }
   };
-  
 
   const handlePlaceOrder = async (amount, bidId) => {
-    const updatedBids = bids.map(bid => 
+    const updatedBids = bids.map(bid =>
       bid._id === bidId ? { ...bid, state: 'paid' } : bid
     );
-    setBids(updatedBids); // Update the local state
-  
+    setBids(updatedBids);
+
     try {
       const response = await fetch(`${API_BASE_URL}/api/updateBidState/${bidId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ newState: 'paid' }), // Change 'state' to 'newState'
+        body: JSON.stringify({ newState: 'paid' }),
       });
-  
+
       if (!response.ok) {
         const errorData = await response.json();
         console.error('Error updating bid on server:', errorData);
         throw new Error(`Error updating bid: ${response.status}`);
       }
-  
-      // Optionally, you could also get the response data and update bids if needed
-      // const updatedBid = await response.json(); // If you want to get the updated bid
-  
     } catch (error) {
       console.error('Error updating bid on server:', error);
     }
-  
-    // Refetch bids to ensure the latest state
-    fetchBids(); // Call this to update the bids after placing the order
-  
-    // Navigate to PaymentScreen (if applicable)
+
+    fetchBids();
     navigation.navigate("PaymentScreen", { amount });
   };
-  
-    
 
-  // Use effect to fetch bids when userid changes
   useEffect(() => {
     if (userid) {
       fetchBids();
     }
-  }, [userid]); // Run only when userid is set
+  }, [userid]);
+
+  // Function to filter bids based on the filter state
+  const filteredBids = bids.filter((bid) => {
+    if (filterState === 'all') return true;
+    if (filterState === 'accepted') {
+      return bid.state === 'accepted' || bid.state === 'paid'; // Include both 'accepted' and 'paid'
+    }
+    return bid.state === filterState;
+  });
 
   const renderItem = ({ item }) => (
     <View style={styles.bidItem}>
@@ -181,27 +172,23 @@ const updateBidState = async (bidId, newState) => {
       <View style={styles.bidDetails}>
         <Text style={styles.bidAmount}>Bid Amount: ${item.bidamount}</Text>
         <Text style={styles.bidUserId}>Product Name: {item.productName}</Text>
-        {item.state === 'rejected' && ( 
-        <Text style={styles.bidUserId}>Lost and got {item.state}</Text>
+        {item.state === 'rejected' && (
+          <Text style={styles.bidUserId}>Lost and got {item.state}</Text>
         )}
-
-        {item.state === 'accepted' && ( // Show button if state is 'accepted'
-          <TouchableOpacity 
-            style={styles.placeOrderButton} 
-            onPress={() => handlePlaceOrder(item.bidamount, item._id)}  // Pass a function reference
+        {item.state === 'accepted' && (
+          <TouchableOpacity
+            style={styles.placeOrderButton}
+            onPress={() => handlePlaceOrder(item.bidamount, item._id)}
           >
             <Text style={styles.placeOrderButtonText}>Buy Product</Text>
           </TouchableOpacity>
         )}
-        
-        {/* Display message if the state is 'paid' */}
         {item.state === 'paid' && (
           <Text style={styles.purchasedMessage}>You won the bid and bought this product!</Text>
         )}
       </View>
     </View>
   );
-  
 
   return (
     <View style={styles.container}>
@@ -212,16 +199,34 @@ const updateBidState = async (bidId, newState) => {
         <Text style={styles.headerText}>Made Bids</Text>
         <Icon name="pricetag" size={40} color="#FFFFFF" />
       </View>
-      
-      {loading ? ( // Show loading indicator while fetching data
+
+      {/* Filter buttons */}
+      <View style={styles.filterContainer}>
+        {['all', 'requested', 'accepted', 'rejected'].map((state) => (
+          <TouchableOpacity
+            key={state}
+            style={[
+              styles.filterButton,
+              filterState === state && styles.activeFilterButton,
+            ]}
+            onPress={() => setFilterState(state)}
+          >
+            <Text style={filterState === state ? styles.activeFilterText : styles.filterText}>
+              {state.charAt(0).toUpperCase() + state.slice(1)}
+            </Text>
+          </TouchableOpacity>
+        ))}
+      </View>
+
+      {loading ? (
         <ActivityIndicator size="large" color="#FF7622" />
       ) : (
         <FlatList
-          data={bids}
+          data={filteredBids}
           renderItem={renderItem}
-          keyExtractor={item => item._id} // Assuming each bid has a unique _id
+          keyExtractor={(item) => item._id}
           contentContainerStyle={styles.list}
-          ItemSeparatorComponent={() => <View style={styles.separator} />} // Add separators
+          ItemSeparatorComponent={() => <View style={styles.separator} />}
         />
       )}
     </View>
@@ -249,11 +254,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     textAlign: 'center',
   },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 10,
-  },
   list: {
     paddingBottom: 100,
   },
@@ -267,48 +267,59 @@ const styles = StyleSheet.create({
   },
   bidDetails: {
     flex: 1,
-    marginLeft: 10, // Add some space between the icon and the details
+    marginLeft: 10,
+  },
+  bidAmount: {
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  bidUserId: {
+    fontSize: 14,
+    color: '#555',
   },
   bidIcon: {
     marginRight: 10,
   },
-  bidAmount: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#FF7622',
+  placeOrderButton: {
+    backgroundColor: '#FF7622',
+    padding: 10,
+    borderRadius: 5,
+    marginTop: 10,
   },
-  bidUserId: {
+  placeOrderButtonText: {
+    color: '#FFFFFF',
     fontSize: 16,
-    color: 'grey',
+    textAlign: 'center',
+  },
+  purchasedMessage: {
+    color: '#00A676',
+    fontWeight: 'bold',
+    marginTop: 10,
   },
   separator: {
     height: 10,
   },
-  highestBidContainer: {
-    marginVertical: 15,
-    padding: 15,
-    backgroundColor: '#FFFFE0',
-    borderRadius: 10,
+  filterContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 20,
   },
-  highestBidText: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#FF7622',
+  filterButton: {
+    padding: 10,
+    borderRadius: 5,
+    backgroundColor: '#E0E0E0',
   },
-  placeOrderButton: {
-    backgroundColor: "#FF9500",
-    borderRadius: 8,
-    paddingVertical: 16,
-    alignItems: "center",
+  activeFilterButton: {
+    backgroundColor: '#FF7622',
   },
-  placeOrderButtonText: {
-    color: "white",
-    fontWeight: "bold",
-    fontSize: 16,
+  filterText: {
+    color: '#555',
+    fontSize: 14,
   },
-  purchasedMessage:{
-    color: "red",
-  }
+  activeFilterText: {
+    color: '#FFFFFF',
+    fontSize: 14,
+  },
 });
 
 export default BiddingScreen;

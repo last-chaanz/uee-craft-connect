@@ -4,113 +4,87 @@ import {
   Text,
   StyleSheet,
   TouchableOpacity,
-  Image,
   ScrollView,
   SafeAreaView,
   Dimensions,
 } from "react-native";
-import Entypo from "@expo/vector-icons/Entypo";
 import Icon from "react-native-vector-icons/Ionicons";
 
 const { width } = Dimensions.get("window");
 
-const SellerDashboardNew = ({ navigation }) => {
-  const sellerData = {
-    name: "Ruwan Perera",
-    id: "20190108R",
-    joinedDate: "2019-10-15",
-    status: "Active",
-  };
+const SellerDashboard = ({ navigation }) => {
+  const menuItems = [
+    { name: "Reports", icon: "bar-chart-outline", screen: "Reports" },
+    { name: "Analytics", icon: "analytics-outline", screen: "Analytics" },
+    { name: "Reviews", icon: "chatbubble-outline", screen: "Reviews" },
+    { name: "Community", icon: "people-outline", screen: "CommunityResources" },
+    { name: "Chat", icon: "chatbubbles-outline", screen: "CommunityChat" },
+    { name: "Products", icon: "cash-outline", screen: "SellerAllProducts" },
+  ];
 
   return (
     <SafeAreaView style={styles.safeArea}>
       <ScrollView contentContainerStyle={styles.scrollContainer}>
-        {/* Top Bar */}
-        <View style={styles.topBar}>
-          {/* <TouchableOpacity onPress={() => navigation.openDrawer()}> */}
-          <TouchableOpacity onPress={() => {}}>
-            {/* <Entypo name="menu" size={24} color="#FFF" /> */}
-            <Icon name="menu" size={36} color="#FFF" />
-          </TouchableOpacity>
-          <TouchableOpacity>
-            <Image
-              source={{
-                uri: "https://res.cloudinary.com/dtktpemb7/image/upload/v1683432593/cld-sample.jpg",
-              }}
-              style={styles.topBarImage}
-            />
-          </TouchableOpacity>
+        {/* Header */}
+        <View style={styles.header}>
+          <Text style={styles.title}>Seller Dashboard</Text>
         </View>
 
-        {/* Header Content */}
-        <View style={styles.headerContent}>
-          <Text style={styles.title}>Product Seller</Text>
-          <Text style={styles.welcome}>Hello {sellerData.name}</Text>
-          <View style={styles.sellerInfo}>
-            <Text style={styles.infoText}>Seller ID : {sellerData.id}</Text>
-            <Text style={styles.infoText}>
-              Joined Date : {sellerData.joinedDate}
+        {/* Quick Stats */}
+        <View style={styles.quickStats}>
+          <View style={styles.statItem}>
+            <Text style={styles.statValue}>152</Text>
+            <Text style={styles.statLabel}>Total Products</Text>
+          </View>
+          <View style={styles.statItem}>
+            <Text style={styles.statValue}>₹45,230</Text>
+            <Text style={styles.statLabel}>Today's Sales</Text>
+          </View>
+          <View style={styles.statItem}>
+            <Text style={styles.statValue}>4.8</Text>
+            <Text style={styles.statLabel}>Avg. Rating</Text>
+          </View>
+        </View>
+
+        {/* Grid for Menu Options */}
+        <View style={styles.gridContainer}>
+          {menuItems.map((item, index) => (
+            <TouchableOpacity
+              key={index}
+              style={styles.gridItem}
+              onPress={() => navigation.navigate(item.screen)}
+            >
+              <Icon name={item.icon} size={40} color="#FF6F00" />
+              <Text style={styles.gridText}>{item.name}</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+
+        {/* Recent Activity */}
+        <View style={styles.recentActivity}>
+          <Text style={styles.sectionTitle}>Recent Activity</Text>
+          <View style={styles.activityItem}>
+            <Icon name="cart-outline" size={24} color="#FF6F00" />
+            <Text style={styles.activityText}>
+              New order received - #ORD12345
             </Text>
-            <Text style={styles.infoText}>Status : {sellerData.status}</Text>
           </View>
-        </View>
-
-        {/* Grid Container */}
-        <View style={styles.gridWrapper}>
-          <View style={styles.gridContainer}>
-            <TouchableOpacity
-              style={styles.gridItem}
-              onPress={() => navigation.navigate("Reports")}
-            >
-              <Icon name="bar-chart-outline" size={50} color="#000" />
-              <Text style={styles.gridText}>Reports</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.gridItem}
-              onPress={() => navigation.navigate("Analytics")}
-            >
-              <Icon name="analytics-outline" size={50} color="#000" />
-              <Text style={styles.gridText}>Analytics</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.gridItem}
-              onPress={() => navigation.navigate("Reviews")}
-            >
-              <Icon name="chatbubble-outline" size={50} color="#000" />
-              <Text style={styles.gridText}>Reviews</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.gridItem}
-              onPress={() => navigation.navigate("CommunityResources")}
-            >
-              <Icon name="people-outline" size={50} color="#000" />
-              <Text style={styles.gridText}>Community & Resources</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.gridItem}
-              onPress={() => navigation.navigate("CommunityChat")}
-            >
-              <Icon name="chatbubbles-outline" size={50} color="#000" />
-              <Text style={styles.gridText}>Community Chat</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.gridItem} onPress={() => navigation.navigate("SellerAllProducts")}>
-          <Icon name="cash-outline" size={50} color="#000" />
-          <Text style={styles.gridText}>Products</Text>
-        </TouchableOpacity>
+          <View style={styles.activityItem}>
+            <Icon name="star-outline" size={24} color="#FF6F00" />
+            <Text style={styles.activityText}>
+              New review - 5 stars for Product XYZ
+            </Text>
           </View>
-        </View>
-
-        {/* Floating Action Button with Background */}
-        <View style={styles.floatingButtonContainer}>
-          <View style={styles.floatingButtonBackground} />
-          <TouchableOpacity
-            style={styles.floatingButton}
-            onPress={() => navigation.navigate("AddItem")}
-          >
-            <Icon name="add" size={30} color="#FFF" />
-          </TouchableOpacity>
         </View>
       </ScrollView>
+
+      {/* Floating Action Button */}
+      <TouchableOpacity
+        style={styles.floatingButton}
+        onPress={() => navigation.navigate("AddItem")}
+      >
+        <Icon name="add" size={30} color="#FFF" />
+      </TouchableOpacity>
     </SafeAreaView>
   );
 };
@@ -122,98 +96,106 @@ const styles = StyleSheet.create({
   },
   scrollContainer: {
     flexGrow: 1,
+    backgroundColor: "#f8f8f8",
   },
-  topBar: {
-    flexDirection: "row",
-    justifyContent: "space-between",
+  header: {
+    backgroundColor: "#FF6F00",
+    paddingTop: 20,
+    paddingBottom: 70,
+    paddingHorizontal: 20,
+    borderBottomLeftRadius: 20,
+    borderBottomRightRadius: 20,
     alignItems: "center",
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-  },
-  topBarImage: {
-    width: 36,
-    height: 36,
-    borderRadius: 15,
-  },
-  headerContent: {
-    paddingHorizontal: 20,
-    paddingBottom: 30,
+    justifyContent: "center",
   },
   title: {
-    color: "#FFFFFF",
+    color: "white",
+    paddingHorizontal: 40,
+    paddingVertical: 10,
+    borderRadius: 10,
+    backgroundColor: "#181C2E",
     fontSize: 24,
+    marginTop: 40,
     fontWeight: "bold",
-    textAlign: "center",
   },
-  welcome: {
-    color: "#FFFFFF",
-    fontSize: 20,
-    fontWeight: "bold",
-    textAlign: "center",
-    marginVertical: 5,
+  quickStats: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    paddingVertical: 20,
+    backgroundColor: "#FFF",
+    marginTop: -20,
+    marginHorizontal: 20,
+    borderRadius: 15,
+    elevation: 5,
   },
-  sellerInfo: {
+  statItem: {
     alignItems: "center",
   },
-  infoText: {
-    color: "black",
+  statValue: {
+    fontSize: 18,
     fontWeight: "bold",
-    fontSize: 14,
+    color: "#FF6F00",
   },
-  gridWrapper: {
-    backgroundColor: "#FFFFFF",
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    flex: 1,
+  statLabel: {
+    fontSize: 12,
+    color: "#666",
   },
   gridContainer: {
     flexDirection: "row",
     flexWrap: "wrap",
-    justifyContent: "space-evenly",
+    justifyContent: "space-between",
     padding: 20,
   },
   gridItem: {
-    backgroundColor: "#F5F5F5",
-    width: width * 0.3,
-
-    marginVertical: 10,
-    borderRadius: 10,
+    backgroundColor: "#FFF",
+    width: width * 0.43,
+    aspectRatio: 1,
+    marginBottom: 20,
+    borderRadius: 15,
     alignItems: "center",
     justifyContent: "center",
-    padding: 10,
-    elevation: 5,
+    elevation: 3,
   },
   gridText: {
     marginTop: 10,
     fontSize: 16,
-    color: "#000",
+    color: "#333",
   },
-  floatingButtonContainer: {
-    position: "absolute",
-    bottom: 0,
-    left: 0,
-    right: 0,
+  recentActivity: {
+    backgroundColor: "#FFF",
+    margin: 20,
+    padding: 20,
+    borderRadius: 15,
+    elevation: 3,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: 15,
+    color: "#333",
+  },
+  activityItem: {
+    flexDirection: "row",
     alignItems: "center",
+    marginBottom: 10,
   },
-  floatingButtonBackground: {
-    position: "absolute",
-    bottom: 0,
-    width: width / 2 - 30,
-    height: 80,
-    backgroundColor: "#E0E0E0",
-    borderTopLeftRadius: width / 2,
-    borderTopRightRadius: width / 2,
+  activityText: {
+    marginLeft: 10,
+    fontSize: 14,
+    color: "#666",
   },
   floatingButton: {
+    position: "absolute",
+    bottom: 30,
+    right: 30,
     backgroundColor: "#FF6F00",
     width: 60,
     height: 60,
     borderRadius: 30,
     alignItems: "center",
     justifyContent: "center",
-    elevation: 10,
-    bottom: 10,
+    elevation: 8,
   },
 });
 
-export default SellerDashboardNew;
+export default SellerDashboard;

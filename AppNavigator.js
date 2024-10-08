@@ -22,6 +22,8 @@ import SellerDashboardNew from "./app/screens/seller/sellerDashboardNew";
 import CommunityResources from "./app/screens/community&resources/communityResources";
 import analyticsDashboard from "./app/screens/seller/analyticsDashboard";
 import reviewsDashboard from "./app/screens/seller/reviewsDashboard";
+import ProductList from "./app/screens/product/ProductList";
+import LikedView from "./app/screens/product/LikedView";
 
 const Stack = createStackNavigator();
 
@@ -37,7 +39,7 @@ function AppNavigator() {
           <Stack.Screen name="ViewItem" component={ViewItem} />
           <Stack.Screen name="ViewAll" component={ViewAll} />
           <Stack.Screen name="CartScreen" component={CartScreen} />
-          
+
           <Stack.Screen name="PaymentScreen" component={PaymentScreen} />
           <Stack.Screen name="payHistory" component={payHistory} />
 
@@ -59,7 +61,10 @@ function AppNavigator() {
             name="SellerNormalProduct"
             component={SellerNormalProduct}
           />
-          <Stack.Screen name="SellerAllProducts" component={SellerAllProducts} />
+          <Stack.Screen
+            name="SellerAllProducts"
+            component={SellerAllProducts}
+          />
           <Stack.Screen name="BiddingScreen" component={BiddingScreen} />
 
           <Stack.Screen
@@ -69,6 +74,8 @@ function AppNavigator() {
           <Stack.Screen name="Analytics" component={analyticsDashboard} />
 
           <Stack.Screen name="Reviews" component={reviewsDashboard} />
+          <Stack.Screen name="ProductList" component={ProductList} />
+          <Stack.Screen name="LikedView" component={LikedView} />
         </Stack.Navigator>
       </NavigationContainer>
     </StripeProvider>

@@ -1,12 +1,19 @@
-import { FontAwesome, MaterialIcons } from '@expo/vector-icons'; // Importing the font icon library
+import { FontAwesome, MaterialIcons } from "@expo/vector-icons"; // Importing the font icon library
 import React, { useEffect, useState } from "react";
-import { View, Text, TouchableOpacity, StyleSheet, Alert, ScrollView } from "react-native"; // Import ScrollView here
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  Alert,
+  ScrollView,
+} from "react-native"; // Import ScrollView here
 import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import jwtDecode from 'jwt-decode';  // Import jwt-decode
+import jwtDecode from "jwt-decode"; // Import jwt-decode
 
 const ProfileScreen = ({ navigation }) => {
-  const [name, setUsername] = useState("");  // State to store username
+  const [name, setUsername] = useState(""); // State to store username
 
   // Logout function
   const handleLogout = async () => {
@@ -23,17 +30,20 @@ const ProfileScreen = ({ navigation }) => {
       ]);
     } catch (error) {
       console.error("Logout error: ", error);
-      Alert.alert("Error", "An error occurred during logout. Please try again.");
+      Alert.alert(
+        "Error",
+        "An error occurred during logout. Please try again."
+      );
     }
   };
 
   // Function to load and decode the token
   const loadToken = async () => {
     try {
-      const token = await AsyncStorage.getItem('authToken');
+      const token = await AsyncStorage.getItem("authToken");
       if (token) {
-        const decodedToken = jwtDecode(token);  // Correct token decoding
-        setUsername(decodedToken.name);  // Set the username from the decoded token
+        const decodedToken = jwtDecode(token); // Correct token decoding
+        setUsername(decodedToken.name); // Set the username from the decoded token
       }
     } catch (error) {
       console.error("Error decoding token: ", error);
@@ -62,25 +72,34 @@ const ProfileScreen = ({ navigation }) => {
           <FontAwesome name="user-circle-o" size={100} color="#888" />
         </View>
         <Text style={styles.profileName}>{name ? name : "User Name"}</Text>
- {/* Display the username */}
+        {/* Display the username */}
         <Text style={styles.profileBio}>I love arts and crafts</Text>
       </View>
 
       {/* Profile Options */}
       <View style={styles.optionContainer}>
-        <TouchableOpacity style={styles.optionItem} onPress={() => navigation.navigate('CartScreen')} >
+        <TouchableOpacity
+          style={styles.optionItem}
+          onPress={() => navigation.navigate("CartScreen")}
+        >
           <Ionicons name="cart-outline" size={24} color="#1E88E5" />
           <Text style={styles.optionText}>Cart</Text>
           <Ionicons name="chevron-forward-outline" size={24} color="#ccc" />
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.optionItem}>
+        <TouchableOpacity
+          style={styles.optionItem}
+          onPress={() => navigation.navigate("LikedView")}
+        >
           <FontAwesome name="heart-o" size={24} color="#E91E63" />
           <Text style={styles.optionText}>Favourite</Text>
           <Ionicons name="chevron-forward-outline" size={24} color="#ccc" />
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.optionItem} onPress={() => navigation.navigate('payHistory')}>
+        <TouchableOpacity
+          style={styles.optionItem}
+          onPress={() => navigation.navigate("payHistory")}
+        >
           <MaterialIcons name="payment" size={24} color="#3F51B5" />
           <Text style={styles.optionText}>Payment History</Text>
           <Ionicons name="chevron-forward-outline" size={24} color="#ccc" />
@@ -89,7 +108,10 @@ const ProfileScreen = ({ navigation }) => {
 
       {/* Bidding Section */}
       <View style={styles.optionContainer}>
-        <TouchableOpacity style={styles.optionItem} onPress={() => navigation.navigate('BiddingScreen')}>
+        <TouchableOpacity
+          style={styles.optionItem}
+          onPress={() => navigation.navigate("BiddingScreen")}
+        >
           <MaterialIcons name="gavel" size={24} color="#00C853" />
           <Text style={styles.optionText}>My Bidding</Text>
           <Ionicons name="chevron-forward-outline" size={24} color="#ccc" />
@@ -117,20 +139,20 @@ const ProfileScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F9FAFB',
+    backgroundColor: "#F9FAFB",
   },
   header: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     padding: 20,
   },
   headerTitle: {
     marginLeft: 10,
     fontSize: 20,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   profileInfo: {
-    alignItems: 'center',
+    alignItems: "center",
     marginTop: 20,
   },
   iconContainer: {
@@ -138,14 +160,14 @@ const styles = StyleSheet.create({
   },
   profileName: {
     fontSize: 22,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   profileBio: {
     fontSize: 16,
-    color: '#6c757d',
+    color: "#6c757d",
   },
   optionContainer: {
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     borderRadius: 10,
     marginHorizontal: 20,
     marginVertical: 10,
@@ -153,9 +175,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
   },
   optionItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
     paddingVertical: 15,
   },
   optionText: {
@@ -165,7 +187,7 @@ const styles = StyleSheet.create({
   },
   footerDesign: {
     marginTop: 20,
-    alignItems: 'flex-end',
+    alignItems: "flex-end",
     paddingRight: 20,
     // Add footer styling or image here
   },

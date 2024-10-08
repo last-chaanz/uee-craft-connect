@@ -1,15 +1,18 @@
 import { StyleSheet, View, StatusBar } from "react-native";
 import AppNavigator from "./AppNavigator";
 import { CartProvider } from "./app/components/CartContext";
+import { LikedProductsProvider } from "./app/components/LikedProductsContext";
 
 export default function App() {
   return (
-    <CartProvider>
-      <View style={styles.container}>
-        <StatusBar style="auto" />
-        <AppNavigator />
-      </View>
-    </CartProvider>
+    <LikedProductsProvider>
+      <CartProvider>
+        <View style={styles.container}>
+          <StatusBar style="auto" />
+          <AppNavigator />
+        </View>
+      </CartProvider>
+    </LikedProductsProvider>
   );
 }
 

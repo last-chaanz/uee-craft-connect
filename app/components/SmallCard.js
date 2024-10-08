@@ -1,23 +1,26 @@
-import React, { useState } from "react";
+import React, { useContext } from "react";
 import { View, Text, Image, StyleSheet, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { LikedProductsContext } from "../components/LikedProductsContext";
 
-const SmallCard = ({ image, title, subtitle, price, onView }) => {
-  const [isLiked, setIsLiked] = useState(false);
+const SmallCard = ({ product, onView }) => {
+  const { likedProducts, toggleLikedProduct } =
+    useContext(LikedProductsContext);
 
-  const toggleLike = () => {
-    setIsLiked(!isLiked);
-  };
+  const isLiked = likedProducts.some((p) => p._id === product._id);
 
   return (
     <View style={styles.card}>
-      <Image source={{ uri: image }} style={styles.image} />
+      <Image source={{ uri: product.image }} style={styles.image} />
       <View style={styles.content}>
-        <Text style={styles.title}>{title}</Text>
-        <Text style={styles.subtitle}>{subtitle}</Text>
-        <Text style={styles.price}>${price}</Text>
+        <Text style={styles.title}>{product.name}</Text>
+        <Text style={styles.subtitle}>{product.categories.join(", ")}</Text>
+        <Text style={styles.price}>${product.price}</Text>
       </View>
-      <TouchableOpacity style={styles.likeButton} onPress={toggleLike}>
+      <TouchableOpacity
+        style={styles.likeButton}
+        onPress={() => toggleLikedProduct(product)}
+      >
         <Ionicons
           name={isLiked ? "heart" : "heart-outline"}
           size={24}

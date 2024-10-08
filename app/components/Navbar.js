@@ -8,7 +8,7 @@ const NavItem = ({ label, icon, onPress, isActive }) => (
     <Ionicons
       name={isActive ? icon : `${icon}-outline`}
       size={24}
-      color={isActive ? "#007AFF" : "#8E8E93"}
+      color={isActive ? "#181C2E" : "#8E8E93"}
     />
     <Text style={[styles.navLabel, isActive && styles.activeNavLabel]}>
       {label}
@@ -21,7 +21,7 @@ const Navbar = ({ navigation }) => {
 
   const navItems = [
     { label: "Home", icon: "home", screen: "ViewAll" },
-    { label: "Products", icon: "pricetags", screen: "ProductsScreen" },
+    { label: "Products", icon: "pricetags", screen: "ProductList" },
     { label: "Cart", icon: "cart", screen: "CartScreen" },
     { label: "Profile", icon: "person", screen: "ProfileScreen" },
   ];
@@ -57,10 +57,10 @@ const styles = StyleSheet.create({
     textAlign: "center",
     fontSize: 12,
     marginTop: 4,
-    color: "#8E8E93",
+    color: "gray",
   },
   activeNavLabel: {
-    color: "#007AFF",
+    color: "#181C2E",
     fontWeight: "bold",
   },
 });

@@ -14,6 +14,7 @@ import {
 import Icon from "react-native-vector-icons/Ionicons";
 import CreatePost from "./createPost";
 import CreatePostNew from "./createPostNew";
+import ArticleList from "./articleList";
 
 // Dummy data for Community Posts
 const communityPosts = [
@@ -139,12 +140,62 @@ const resourceTopics = [
   // Add more topics
 ];
 
+const resourceTopicsNew = [
+  {
+    id: "1",
+    title: "Getting Started",
+    articleCount: 5,
+    articles: [
+      {
+        id: "1",
+        title: "Setting up your seller account",
+        description:
+          "Learn how to create and optimize your seller account. This comprehensive guide covers account verification, profile setup, and best practices for presenting yourself professionally on the platform.",
+      },
+      {
+        id: "2",
+        title: "Creating your first listing",
+        description:
+          "A step-by-step tutorial on creating effective product listings. Discover how to write compelling descriptions, take great photos, and price your items competitively.",
+      },
+      {
+        id: "3",
+        title: "Understanding the platform",
+        description:
+          "Get familiar with the platform's features, policies, and tools. This article explains the basics of navigation, communication with customers, and using seller analytics.",
+      },
+    ],
+  },
+  {
+    id: "2",
+    title: "Marketing Strategies",
+    articleCount: 3,
+    articles: [
+      {
+        id: "1",
+        title: "Social media marketing guide",
+        description:
+          "Leverage social media to boost your sales. This guide covers strategies for Instagram, Facebook, and Twitter, including content planning and engagement techniques.",
+      },
+      {
+        id: "2",
+        title: "Email marketing for sellers",
+        description:
+          "Master the art of email marketing to retain customers and drive sales. Learn about creating newsletters, promotional campaigns, and building your email list.",
+      },
+    ],
+  },
+];
+
 const { width } = Dimensions.get("window");
 
 const CommunityResources = ({ navigation }) => {
   const [activeTab, setActiveTab] = useState("community");
   const [expandedTopic, setExpandedTopic] = useState(null);
   const [showCreatePost, setShowCreatePost] = useState(false);
+  const [showArticleList, setShowArticleList] = useState(false);
+  const [artcles, setArtcles] = useState(null);
+  const [articleTitle, setArticleTitle] = useState(null);
 
   const renderCommunityPost = ({ item }) => (
     <View style={styles.postContainer}>
@@ -182,8 +233,14 @@ const CommunityResources = ({ navigation }) => {
           </Text>
           <TouchableOpacity
             style={styles.exploreButton}
-            onPress={() =>
-              navigation.navigate("ArticleList", { articles: item.articles })
+            onPress={
+              () => {
+                setArtcles(item.articles);
+
+                setArticleTitle(item.title);
+                setShowArticleList(true);
+              }
+              // navigation.navigate("ArticleList", { articles: item.articles })
             }
           >
             <Text style={styles.exploreButtonText}>Explore</Text>
@@ -301,12 +358,26 @@ const CommunityResources = ({ navigation }) => {
           </Modal>  */}
         </>
       ) : (
-        <FlatList
-          data={resourceTopics}
-          renderItem={renderResourceTopic}
-          keyExtractor={(item) => item.id}
-          contentContainerStyle={styles.resourceContent}
-        />
+        <>
+          {activeTab === "resources" ? (
+            <>
+              {!showArticleList ? (
+                <FlatList
+                  data={resourceTopicsNew}
+                  renderItem={renderResourceTopic}
+                  keyExtractor={(item) => item.id}
+                  contentContainerStyle={styles.resourceContent}
+                />
+              ) : (
+                <ArticleList
+                  articles={artcles}
+                  topicTitle={articleTitle}
+                  onBack={() => setShowArticleList(false)}
+                />
+              )}
+            </>
+          ) : null}
+        </>
       )}
     </SafeAreaView>
   );

@@ -119,6 +119,7 @@ const resourceTopics = [
       { id: "3", title: "Understanding the platform" },
       { id: "4", title: "Best practices for new sellers" },
       { id: "5", title: "Common mistakes to avoid" },
+      { id: "6", title: "What to expect from community Forum..." },
     ],
   },
   {
@@ -170,7 +171,7 @@ const CommunityResources = ({ navigation }) => {
       {expandedTopic === item.id && (
         <View style={styles.topicContent}>
           <Text style={styles.articleCount}>
-            {item.articleCount} articles available
+            {item.articles.length} articles available
           </Text>
           <TouchableOpacity
             style={styles.exploreButton}
@@ -246,12 +247,28 @@ const CommunityResources = ({ navigation }) => {
 
       {/* Content */}
       {activeTab === "community" ? (
-        <FlatList
-          data={communityPosts}
-          renderItem={renderCommunityPost}
-          keyExtractor={(item) => item.id}
-          contentContainerStyle={styles.communityContent}
-        />
+        <>
+          <FlatList
+            data={communityPosts}
+            renderItem={renderCommunityPost}
+            keyExtractor={(item) => item.id}
+            contentContainerStyle={styles.communityContent}
+          />
+          {/* Floating Action Button */}
+
+          <TouchableOpacity
+            style={styles.floatingButton}
+            onPress={() => {
+              // Handle add action based on active tab
+              if (activeTab === "community") {
+                navigation.navigate("CreatePost");
+              } else {
+              }
+            }}
+          >
+            <Icon name="add" size={30} color="#FFF" />
+          </TouchableOpacity>
+        </>
       ) : (
         <FlatList
           data={resourceTopics}
@@ -260,21 +277,6 @@ const CommunityResources = ({ navigation }) => {
           contentContainerStyle={styles.resourceContent}
         />
       )}
-
-      {/* Floating Action Button */}
-      <TouchableOpacity
-        style={styles.floatingButton}
-        onPress={() => {
-          // Handle add action based on active tab
-          if (activeTab === "community") {
-            navigation.navigate("CreatePost");
-          } else {
-            navigation.navigate("AddResource");
-          }
-        }}
-      >
-        <Icon name="add" size={30} color="#FFF" />
-      </TouchableOpacity>
     </SafeAreaView>
   );
 };

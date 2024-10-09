@@ -24,6 +24,7 @@ import analyticsDashboard from "./app/screens/seller/analyticsDashboard";
 import reviewsDashboard from "./app/screens/seller/reviewsDashboard";
 import ProductList from "./app/screens/product/ProductList";
 import LikedView from "./app/screens/product/LikedView";
+import CreatePost from "./app/screens/community&resources/createPost";
 
 const Stack = createStackNavigator();
 
@@ -71,6 +72,7 @@ function AppNavigator() {
             name="CommunityResources"
             component={CommunityResources}
           />
+          <Stack.Screen name="CreatePost" component={CreatePost} />
           <Stack.Screen name="Analytics" component={analyticsDashboard} />
 
           <Stack.Screen name="Reviews" component={reviewsDashboard} />

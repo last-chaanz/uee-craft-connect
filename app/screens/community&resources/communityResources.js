@@ -8,8 +8,12 @@ import {
   ScrollView,
   SafeAreaView,
   FlatList,
+  Modal,
+  Dimensions,
 } from "react-native";
 import Icon from "react-native-vector-icons/Ionicons";
+import CreatePost from "./createPost";
+import CreatePostNew from "./createPostNew";
 
 // Dummy data for Community Posts
 const communityPosts = [
@@ -135,9 +139,12 @@ const resourceTopics = [
   // Add more topics
 ];
 
+const { width } = Dimensions.get("window");
+
 const CommunityResources = ({ navigation }) => {
   const [activeTab, setActiveTab] = useState("community");
   const [expandedTopic, setExpandedTopic] = useState(null);
+  const [showCreatePost, setShowCreatePost] = useState(false);
 
   const renderCommunityPost = ({ item }) => (
     <View style={styles.postContainer}>
@@ -248,26 +255,50 @@ const CommunityResources = ({ navigation }) => {
       {/* Content */}
       {activeTab === "community" ? (
         <>
-          <FlatList
-            data={communityPosts}
-            renderItem={renderCommunityPost}
-            keyExtractor={(item) => item.id}
-            contentContainerStyle={styles.communityContent}
-          />
-          {/* Floating Action Button */}
+          {showCreatePost ? (
+            <>
+              <View style={styles.modalBackground}>
+                <CreatePostNew onClose={() => setShowCreatePost(false)} />
+                {/* Pass close function */}
+              </View>
+            </>
+          ) : (
+            <>
+              <FlatList
+                data={communityPosts}
+                renderItem={renderCommunityPost}
+                keyExtractor={(item) => item.id}
+                contentContainerStyle={styles.communityContent}
+              />
+              {/* Floating Action Button */}
 
-          <TouchableOpacity
-            style={styles.floatingButton}
-            onPress={() => {
-              // Handle add action based on active tab
-              if (activeTab === "community") {
-                navigation.navigate("CreatePost");
-              } else {
-              }
-            }}
+              <TouchableOpacity
+                style={styles.floatingButton}
+                onPress={() => {
+                  // Handle add action based on active tab
+                  if (activeTab === "community") {
+                    // navigation.navigate("CreatePost");
+                    setShowCreatePost(true);
+                  } else {
+                  }
+                }}
+              >
+                <Icon name="add" size={30} color="#FFF" />
+              </TouchableOpacity>
+            </>
+          )}
+
+          {/* Modal for CreatePost */}
+          {/* <Modal
+            visible={showCreatePost}
+            animationType="slide"
+            transparent={true}
           >
-            <Icon name="add" size={30} color="#FFF" />
-          </TouchableOpacity>
+            <View style={styles.modalBackground}>
+              <CreatePost onClose={() => setShowCreatePost(false)} />
+              Pass close function
+            </View>
+          </Modal>  */}
         </>
       ) : (
         <FlatList
@@ -434,6 +465,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     elevation: 5,
+  },
+  modalBackground: {
+    width: width,
+    flex: 1,
+    backgroundColor: "rgba(0, 0, 0, 0.5)", // Semi-transparent background
   },
 });
 

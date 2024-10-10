@@ -15,7 +15,8 @@ import {
 import * as ImagePicker from "expo-image-picker";
 import Icon from "react-native-vector-icons/Ionicons";
 import { manipulateAsync, SaveFormat } from "expo-image-manipulator";
-// import { Cloudinary } from "@cloudinary/url-gen";
+// import AsyncStorage from "@react-native-async-storage/async-storage";
+import { chatService } from "../chat/chatService";
 
 const SCREEN_WIDTH = Dimensions.get("window").width;
 const MAX_IMAGE_HEIGHT = 300;
@@ -27,14 +28,14 @@ const CreatePostNew = ({ onClose }) => {
   const [description, setDescription] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [imageAspect, setImageAspect] = useState(1);
+  const [imageBase64, setImageBase64] = useState(null);
+  // const [currentUser, setCurrentUser] = useState(null);
 
-  // const cloudinary = new Cloudinary({
-  //   cloud: {
-  //     cloudName: "dtktpemb7",
-  //     // apiKey: "236633849547161",
-  //     // apiSecret: "yumXWnr1DGmbY1sR6m1OgU8sSe4",
-  //   },
-  // });
+  // const getCurrentUser = async () => {
+  //   const userJson = await AsyncStorage.getItem("currentUser");
+  //   const user = JSON.parse(userJson);
+  //   setCurrentUser(user);
+  // };
 
   const handleImageSelect = async () => {
     try {
@@ -52,13 +53,15 @@ const CreatePostNew = ({ onClose }) => {
       // Pick the image
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        base64: true,
         allowsEditing: false,
         // aspect: [4, 3],
-        quality: 0.8, // Slightly reduce initial quality
+        quality: 0.4, // Slightly reduce initial quality
       });
 
       if (!result.canceled && result.assets[0]) {
         const selectedImage = result.assets[0];
+        const base64Image = `data:image/jpeg;base64,${selectedImage.base64}`;
 
         // Get image dimensions
         const { width, height } = selectedImage;
@@ -84,12 +87,14 @@ const CreatePostNew = ({ onClose }) => {
           result.assets[0].uri,
           [{ resize: { width: 1080 } }], // Resize to standard width
           {
-            compress: 0.8, // 80% quality
+            compress: 0.4, // 80% quality
             format: SaveFormat.JPEG,
           }
         );
 
         setImage(optimizedImage.uri);
+
+        setImageBase64(base64Image);
       }
     } catch (error) {
       console.error("Error selecting image:", error);
@@ -113,50 +118,36 @@ const CreatePostNew = ({ onClose }) => {
       // Upload image to Cloudinary
       // const uploadResponse = await cloudinary.upload(image);
 
-      const options = {
-        upload_preset: "ml_default",
-        unsigned: true,
+      const postData = {
+        title,
+        description,
+        image: imageBase64,
       };
 
-      // await upload(cloudinary, {
-      //   file: image,
-      //   options: options,
-      //   callback: (error, response) => {
-      //     //.. handle response
-
-      //     if (error) {
-      //       console.error("Upload error:", error);
-      //       return; // Handle the error appropriately
-      //     }
-
-      //     // Handle the response
-      //     const imageUrl = "";
-      //     // const imageUrl = response.url; // Store the URL in a variable
-      //     console.log("Uploaded image URL:", imageUrl); //
-      //   },
-      // });
-      // const imageUrl = uploadResponse.url;
-      // console.log("image-url: ", imageUrl);
-
-      // Send data to backend API
-      // const response = await axios.post("your_backend_api_url", {
-      //   title,
-      //   description,
-      //   imageUrl,
-      // });
-
-      // if (response.status === 200) {
-      //   // Successful post creation
-      //   setSuccessMessage("Post created successfully!");
-      //   setTitle("");
-      //   setDescription("");
-      //   setImage("");
-      //   onClose(); // Close the modal
-      // } else {
-      //   console.error("Error creating post:", response.data);
-      // }
+      const response = await chatService.createPost(postData);
+      console.log(response);
+      if (response === 201) {
+        // Successful post creation
+        console.log("Post created successfully!");
+        setTitle("");
+        setDescription("");
+        setImage("");
+        alert("Post created successfully!");
+        onClose(); // Close the modal
+      } else {
+        console.error("Error creating post:", response.data);
+      }
     } catch (error) {
-      console.error("Error:", error);
+      console.error(
+        "Error creating post:",
+        error.response?.data?.error || "An unexpected error occurred"
+      );
+      alert(
+        error.response?.data?.error ||
+          "Failed to create post. Please try again."
+      );
+    } finally {
+      setIsLoading(false);
     }
 
     // Here you would typically upload the image and other data
@@ -166,7 +157,7 @@ const CreatePostNew = ({ onClose }) => {
     //   description,
     // });
 
-    onClose();
+    // onClose();
   };
 
   const ImageDisplay = () => {

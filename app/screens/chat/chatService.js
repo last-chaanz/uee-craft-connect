@@ -82,4 +82,32 @@ export const chatService = {
       throw error;
     }
   },
+
+  createPost: async (postData) => {
+    try {
+      const config = await getAuthHeader();
+      const response = await axios.post(
+        `${API_BASE_URL}/api/posts`,
+        postData,
+        config
+      );
+      console.log(response.status);
+      return response.status;
+    } catch (error) {
+      console.error("Error creating post:", error);
+      throw error;
+    }
+  },
+
+  getPosts: async () => {
+    try {
+      const config = await getAuthHeader();
+      const response = await axios.get(`${API_BASE_URL}/api/posts`, config);
+
+      return response.data;
+    } catch (error) {
+      console.error("Error getting post:", error);
+      throw error;
+    }
+  },
 };

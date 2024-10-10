@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -10,11 +10,14 @@ import {
   FlatList,
   Modal,
   Dimensions,
+  ActivityIndicator,
 } from "react-native";
 import Icon from "react-native-vector-icons/Ionicons";
 import CreatePost from "./createPost";
 import CreatePostNew from "./createPostNew";
 import ArticleList from "./articleList";
+import { chatService } from "../chat/chatService";
+// import UserLogo from "../../assets/user-logo.avif"
 
 // Dummy data for Community Posts
 const communityPosts = [
@@ -189,6 +192,9 @@ const resourceTopicsNew = [
 
 const { width } = Dimensions.get("window");
 
+const userLogo =
+  "https://res.cloudinary.com/dtktpemb7/image/upload/v1728601112/samples/images_1_cgpzeq.png";
+
 const CommunityResources = ({ navigation }) => {
   const [activeTab, setActiveTab] = useState("community");
   const [expandedTopic, setExpandedTopic] = useState(null);
@@ -197,15 +203,85 @@ const CommunityResources = ({ navigation }) => {
   const [artcles, setArtcles] = useState(null);
   const [articleTitle, setArticleTitle] = useState(null);
 
+  // New states for posts
+  const [posts, setPosts] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    fetchPosts();
+  }, []);
+
+  const fetchPosts = async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      const response = await chatService.getPosts();
+      setPosts(response);
+    } catch (err) {
+      console.error("Error fetching posts:", err);
+      setError("Failed to load posts. Please try again later.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleRefresh = () => {
+    fetchPosts();
+  };
+
+  const renderContent = () => {
+    if (isLoading) {
+      return (
+        <View style={styles.centerContainer}>
+          <ActivityIndicator size="large" color="#FF6F00" />
+        </View>
+      );
+    }
+
+    if (error) {
+      return (
+        <View style={styles.centerContainer}>
+          <Text style={styles.errorText}>{error}</Text>
+          <TouchableOpacity onPress={fetchPosts} style={styles.retryButton}>
+            <Text style={styles.retryButtonText}>Retry</Text>
+          </TouchableOpacity>
+        </View>
+      );
+    }
+
+    if (posts.length === 0) {
+      return (
+        <View style={styles.centerContainer}>
+          <Text style={styles.noPostsText}>No posts yet</Text>
+        </View>
+      );
+    }
+
+    return (
+      <FlatList
+        data={posts}
+        renderItem={renderCommunityPost}
+        keyExtractor={(item) => item._id.toString()}
+        contentContainerStyle={styles.communityContent}
+        onRefresh={handleRefresh}
+        refreshing={isLoading}
+      />
+    );
+  };
+
   const renderCommunityPost = ({ item }) => (
     <View style={styles.postContainer}>
-      <Image source={{ uri: item.author.image }} style={styles.authorImage} />
+      <Image source={{ uri: userLogo }} style={styles.authorImage} />
+
       <View style={styles.postCard}>
-        <Image source={{ uri: item.image }} style={styles.postImage} />
+        <Image source={{ uri: item.imageUrl }} style={styles.postImage} />
         <View style={styles.postContent}>
           <Text style={styles.postTitle}>{item.title}</Text>
           <Text style={styles.postDescription}>{item.description}</Text>
-          <Text style={styles.timestamp}>{item.timestamp}</Text>
+          <Text style={styles.timestamp}>
+            {new Date(item.timestamp).toLocaleDateString()}
+          </Text>
         </View>
       </View>
     </View>
@@ -315,18 +391,24 @@ const CommunityResources = ({ navigation }) => {
           {showCreatePost ? (
             <>
               <View style={styles.modalBackground}>
-                <CreatePostNew onClose={() => setShowCreatePost(false)} />
+                <CreatePostNew
+                  onClose={() => {
+                    setShowCreatePost(false);
+                    fetchPosts();
+                  }}
+                />
                 {/* Pass close function */}
               </View>
             </>
           ) : (
             <>
-              <FlatList
+              {renderContent()}
+              {/* <FlatList
                 data={communityPosts}
                 renderItem={renderCommunityPost}
                 keyExtractor={(item) => item.id}
                 contentContainerStyle={styles.communityContent}
-              />
+              /> */}
               {/* Floating Action Button */}
 
               <TouchableOpacity
@@ -447,7 +529,7 @@ const styles = StyleSheet.create({
   },
   authorImage: {
     width: 40,
-    height: 40,
+    height: 50,
     borderRadius: 20,
     position: "relative",
     zIndex: 1,
@@ -541,6 +623,31 @@ const styles = StyleSheet.create({
     width: width,
     flex: 1,
     backgroundColor: "rgba(0, 0, 0, 0.5)", // Semi-transparent background
+  },
+  centerContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 20,
+  },
+  errorText: {
+    fontSize: 16,
+    color: "#FF0000",
+    textAlign: "center",
+    marginBottom: 10,
+  },
+  retryButton: {
+    backgroundColor: "#FF6F00",
+    padding: 10,
+    borderRadius: 5,
+  },
+  retryButtonText: {
+    color: "#FFF",
+    fontWeight: "bold",
+  },
+  noPostsText: {
+    fontSize: 16,
+    color: "#666",
   },
 });
 

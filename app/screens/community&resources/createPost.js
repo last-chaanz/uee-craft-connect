@@ -15,12 +15,6 @@ const CreatePost = ({ onClose }) => {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
 
-  const cloudinary = new Cloudinary({
-    cloudName: "dtktpemb7",
-    apiKey: "236633849547161",
-    apiSecret: "yumXWnr1DGmbY1sR6m1OgU8sSe4",
-  });
-
   const handleImageSelect = () => {
     const options = {
       mediaType: "photo",
@@ -39,33 +33,6 @@ const CreatePost = ({ onClose }) => {
   };
 
   const handleSubmit = async () => {
-    try {
-      // Upload image to Cloudinary
-      const uploadResponse = await cloudinary.upload(image);
-      const imageUrl = uploadResponse.url;
-      console.log("image-url: ", imageUrl);
-
-      // Send data to backend API
-      // const response = await axios.post("your_backend_api_url", {
-      //   title,
-      //   description,
-      //   imageUrl,
-      // });
-
-      // if (response.status === 200) {
-      //   // Successful post creation
-      //   setSuccessMessage("Post created successfully!");
-      //   setTitle("");
-      //   setDescription("");
-      //   setImage("");
-      //   onClose(); // Close the modal
-      // } else {
-      //   console.error("Error creating post:", response.data);
-      // }
-    } catch (error) {
-      console.error("Error:", error);
-    }
-
     // Handle form submission logic here
     // console.log({ image, title, description });
     onClose(); // Close the modal after submission

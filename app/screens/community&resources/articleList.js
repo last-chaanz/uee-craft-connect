@@ -23,10 +23,14 @@ const ArticleDetail = React.memo(({ article, onClose }) => {
         <Text style={styles.pageTitle}>Article</Text>
       </View>
       <ScrollView style={styles.articleDetailContent}>
-        <Text style={styles.articleDetailTitle}>{article.title}</Text>
-        <Text style={styles.articleDetailDescription}>
-          {article.description}
-        </Text>
+        <View style={styles.dottedBorder}>
+          <Text style={styles.articleDetailTitle}>{article.title}</Text>
+        </View>
+        <View style={styles.dottedBorder}>
+          <Text style={styles.articleDetailDescription}>
+            {article.description}
+          </Text>
+        </View>
       </ScrollView>
     </>
   );
@@ -195,10 +199,18 @@ const styles = StyleSheet.create({
   articleDetailContent: {
     padding: 15,
   },
+  dottedBorder: {
+    borderStyle: "dotted",
+    borderWidth: 2,
+    borderColor: "#666", // Color for the border
+    borderRadius: 10, // Rounded edges
+    padding: 10, // Padding inside the border
+    marginBottom: 15, // Space between elements
+  },
   articleDetailTitle: {
     fontSize: 24,
     fontWeight: "bold",
-    marginBottom: 15,
+    marginBottom: 10,
   },
   articleDetailDescription: {
     fontSize: 16,

@@ -15,6 +15,7 @@ import {
 import * as ImagePicker from "expo-image-picker";
 import Icon from "react-native-vector-icons/Ionicons";
 import { manipulateAsync, SaveFormat } from "expo-image-manipulator";
+// import { Cloudinary } from "@cloudinary/url-gen";
 
 const SCREEN_WIDTH = Dimensions.get("window").width;
 const MAX_IMAGE_HEIGHT = 300;
@@ -26,6 +27,14 @@ const CreatePostNew = ({ onClose }) => {
   const [description, setDescription] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [imageAspect, setImageAspect] = useState(1);
+
+  // const cloudinary = new Cloudinary({
+  //   cloud: {
+  //     cloudName: "dtktpemb7",
+  //     // apiKey: "236633849547161",
+  //     // apiSecret: "yumXWnr1DGmbY1sR6m1OgU8sSe4",
+  //   },
+  // });
 
   const handleImageSelect = async () => {
     try {
@@ -90,7 +99,7 @@ const CreatePostNew = ({ onClose }) => {
     }
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!image) {
       alert("Please select an image");
       return;
@@ -100,12 +109,62 @@ const CreatePostNew = ({ onClose }) => {
       return;
     }
 
+    try {
+      // Upload image to Cloudinary
+      // const uploadResponse = await cloudinary.upload(image);
+
+      const options = {
+        upload_preset: "ml_default",
+        unsigned: true,
+      };
+
+      // await upload(cloudinary, {
+      //   file: image,
+      //   options: options,
+      //   callback: (error, response) => {
+      //     //.. handle response
+
+      //     if (error) {
+      //       console.error("Upload error:", error);
+      //       return; // Handle the error appropriately
+      //     }
+
+      //     // Handle the response
+      //     const imageUrl = "";
+      //     // const imageUrl = response.url; // Store the URL in a variable
+      //     console.log("Uploaded image URL:", imageUrl); //
+      //   },
+      // });
+      // const imageUrl = uploadResponse.url;
+      // console.log("image-url: ", imageUrl);
+
+      // Send data to backend API
+      // const response = await axios.post("your_backend_api_url", {
+      //   title,
+      //   description,
+      //   imageUrl,
+      // });
+
+      // if (response.status === 200) {
+      //   // Successful post creation
+      //   setSuccessMessage("Post created successfully!");
+      //   setTitle("");
+      //   setDescription("");
+      //   setImage("");
+      //   onClose(); // Close the modal
+      // } else {
+      //   console.error("Error creating post:", response.data);
+      // }
+    } catch (error) {
+      console.error("Error:", error);
+    }
+
     // Here you would typically upload the image and other data
-    console.log("Submitting:", {
-      imageUri: image,
-      title,
-      description,
-    });
+    // console.log("Submitting:", {
+    //   imageUri: image,
+    //   title,
+    //   description,
+    // });
 
     onClose();
   };

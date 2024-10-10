@@ -26,6 +26,7 @@ import ProductList from "./app/screens/product/ProductList";
 import LikedView from "./app/screens/product/LikedView";
 import CreatePost from "./app/screens/community&resources/createPost";
 import CommunityChat from "./app/screens/chat/commChat";
+import CommunityChatU from "./app/screens/chat/commChatU";
 import ChatDetail from "./app/screens/chat/chatDetail";
 
 const Stack = createStackNavigator();
@@ -75,7 +76,7 @@ function AppNavigator() {
             component={CommunityResources}
           />
           <Stack.Screen name="CreatePost" component={CreatePost} />
-          <Stack.Screen name="CommunityChat" component={CommunityChat} />
+          <Stack.Screen name="CommunityChat" component={CommunityChatU} />
           <Stack.Screen name="ChatDetail" component={ChatDetail} />
 
           <Stack.Screen name="Analytics" component={analyticsDashboard} />

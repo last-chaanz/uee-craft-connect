@@ -9,114 +9,86 @@ import {
   SafeAreaView,
   KeyboardAvoidingView,
   Platform,
+  ActivityIndicator,
+  Image,
 } from "react-native";
 import Icon from "react-native-vector-icons/Ionicons";
-
-// Extended dummy data
-const currentUser = {
-  _id: "67023000e3c919fc5b0e0594",
-  name: "Ruwan Perera",
-  email: "ruwan@gmail.com",
-  role: "seller",
-};
-
-const dummyChat = {
-  _id: "1",
-  participants: [
-    currentUser,
-    {
-      _id: "2",
-      name: "Ama Silva",
-      email: "ama@gmail.com",
-      role: "seller",
-    },
-  ],
-  messages: [
-    {
-      _id: "m1",
-      sender: "2",
-      content: "Hi, do you make pottery items?",
-      timestamp: new Date(Date.now() - 3600000).toISOString(),
-      read: true,
-    },
-    {
-      _id: "m2",
-      sender: currentUser._id,
-      content: "Yes, I specialize in traditional clay pots!",
-      timestamp: new Date(Date.now() - 3500000).toISOString(),
-      read: true,
-    },
-    {
-      _id: "m3",
-      sender: "2",
-      content:
-        "That's great! I'm looking for someone to collaborate with on a project. I make handwoven baskets and thought we could create a combination of your pots with my basket weaving.",
-      timestamp: new Date(Date.now() - 3400000).toISOString(),
-      read: true,
-    },
-    {
-      _id: "m4",
-      sender: currentUser._id,
-      content:
-        "That sounds like an interesting idea! What kind of combination did you have in mind?",
-      timestamp: new Date(Date.now() - 3300000).toISOString(),
-      read: true,
-    },
-    {
-      _id: "m5",
-      sender: "2",
-      content:
-        "I was thinking we could create planters where your pottery forms the base and my basketry creates a decorative holder. Would you be interested in discussing this further?",
-      timestamp: new Date(Date.now() - 3200000).toISOString(),
-      read: false,
-    },
-  ],
-  lastMessage: new Date(Date.now() - 3200000).toISOString(),
-};
+import { chatService } from "./chatService";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const ChatDetail = ({ route, navigation }) => {
-  const [chat, setChat] = useState(dummyChat);
+  const [chat, setChat] = useState(null);
   const [newMessage, setNewMessage] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [sending, setSending] = useState(false);
+  const [error, setError] = useState(null);
+  const [currentUser, setCurrentUser] = useState(null);
   const flatListRef = useRef();
-
-  const otherParticipant = chat.participants.find(
-    (p) => p._id !== currentUser._id
-  );
+  const { chatId } = route.params;
 
   useEffect(() => {
-    // Scroll to bottom when component mounts
-    flatListRef.current?.scrollToEnd();
+    loadUserAndChat();
+
+    // console.log(chat.messages);
   }, []);
 
-  const sendMessage = () => {
-    if (newMessage.trim() === "") return;
+  const loadUserAndChat = async () => {
+    try {
+      const userJson = await AsyncStorage.getItem("currentUser");
+      const user = JSON.parse(userJson);
+      setCurrentUser(user);
+      // console.log(currentUser);
 
-    const updatedChat = {
-      ...chat,
-      messages: [
-        ...chat.messages,
-        {
-          _id: `m${Date.now()}`,
-          sender: currentUser._id,
-          content: newMessage.trim(),
-          timestamp: new Date().toISOString(),
-          read: false,
-        },
-      ],
-      lastMessage: new Date().toISOString(),
-    };
+      await fetchChat();
+    } catch (err) {
+      console.error("Error loading user and chat:", err);
+      setError("Failed to load chat");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    setChat(updatedChat);
-    setNewMessage("");
+  const fetchChat = async () => {
+    try {
+      const chatData = await chatService.getChatById(chatId);
+      // console.log(chatData);
+      setChat(chatData);
+      // console.log("2 chat\n", chat.messages);
+    } catch (err) {
+      setError("Failed to load chat");
+    }
+  };
 
-    // Scroll to bottom after sending message
-    setTimeout(() => {
-      flatListRef.current?.scrollToEnd();
-    }, 100);
+  const sendMessage = async () => {
+    if (newMessage.trim() === "" || sending) return;
+
+    const participant = chat.participants.find(
+      (participant) => participant._id !== currentUser.id
+    );
+
+    try {
+      setSending(true);
+      const updatedChat = await chatService.startOrContinueChat(
+        participant,
+        newMessage.trim()
+      );
+      setChat(updatedChat);
+      setNewMessage("");
+    } catch (err) {
+      console.error("Failed to send message:", err);
+      // Optionally show an error toast or alert
+    } finally {
+      setSending(false);
+    }
   };
 
   const renderMessage = ({ item }) => {
-    const isCurrentUser = item.sender === currentUser._id;
+    // console.log("mm");
+    if (!currentUser) return null;
+
+    // console.log(item.sender._id);
+
+    const isCurrentUser = item.sender._id === currentUser.id;
     const messageTime = new Date(item.timestamp).toLocaleTimeString([], {
       hour: "2-digit",
       minute: "2-digit",
@@ -135,12 +107,49 @@ const ChatDetail = ({ route, navigation }) => {
             isCurrentUser ? styles.currentUserBubble : styles.otherUserBubble,
           ]}
         >
-          <Text style={styles.messageText}>{item.content}</Text>
-          <Text style={styles.messageTime}>{messageTime}</Text>
+          <Text
+            style={[
+              styles.messageText,
+              isCurrentUser ? styles.currentUserText : styles.otherUserText,
+            ]}
+          >
+            {item.content}
+          </Text>
+          <Text
+            style={[
+              styles.messageTime,
+              isCurrentUser ? styles.currentUserTime : styles.otherUserTime,
+            ]}
+          >
+            {messageTime}
+          </Text>
         </View>
       </View>
     );
   };
+
+  if (loading || !currentUser || !chat) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#FF6F00" />
+      </View>
+    );
+  }
+
+  if (error) {
+    return (
+      <View style={styles.errorContainer}>
+        <Text style={styles.errorText}>{error}</Text>
+        <TouchableOpacity onPress={fetchChat} style={styles.retryButton}>
+          <Text style={styles.retryButtonText}>Retry</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
+
+  const otherParticipant = chat.participants.find(
+    (p) => p._id !== currentUser.id
+  );
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -149,6 +158,20 @@ const ChatDetail = ({ route, navigation }) => {
         behavior={Platform.OS === "ios" ? "padding" : null}
         keyboardVerticalOffset={Platform.OS === "ios" ? 90 : 0}
       >
+        <View style={styles.topBar}>
+          {/* <TouchableOpacity onPress={() => navigation.openDrawer()}> */}
+          <TouchableOpacity onPress={() => {}}>
+            <Icon name="menu" size={30} color="#000" />
+          </TouchableOpacity>
+          <TouchableOpacity>
+            <Image
+              source={{
+                uri: "https://res.cloudinary.com/dtktpemb7/image/upload/v1683432593/cld-sample.jpg",
+              }}
+              style={styles.topBarImage}
+            />
+          </TouchableOpacity>
+        </View>
         <View style={styles.header}>
           <TouchableOpacity
             style={styles.backButton}
@@ -183,9 +206,18 @@ const ChatDetail = ({ route, navigation }) => {
             value={newMessage}
             onChangeText={setNewMessage}
             multiline
+            editable={!sending}
           />
-          <TouchableOpacity style={styles.sendButton} onPress={sendMessage}>
-            <Icon name="send" size={24} color="#FFF" />
+          <TouchableOpacity
+            style={[styles.sendButton, sending && styles.sendButtonDisabled]}
+            onPress={sendMessage}
+            disabled={sending}
+          >
+            {sending ? (
+              <ActivityIndicator size="small" color="#FFF" />
+            ) : (
+              <Icon name="send" size={24} color="#FFF" />
+            )}
           </TouchableOpacity>
         </View>
       </KeyboardAvoidingView>
@@ -202,15 +234,26 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#f8f8f8",
   },
+  topBar: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    backgroundColor: "#FFF",
+  },
+  topBarImage: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+  },
   header: {
-    backgroundColor: "#FF6F00",
+    backgroundColor: "#2e2c2a",
     padding: 20,
     paddingTop: 10,
     paddingBottom: 15,
     flexDirection: "row",
     alignItems: "center",
-    borderBottomLeftRadius: 30,
-    borderBottomRightRadius: 30,
   },
   backButton: {
     marginRight: 15,
@@ -299,6 +342,50 @@ const styles = StyleSheet.create({
     borderRadius: 22,
     justifyContent: "center",
     alignItems: "center",
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#f8f8f8",
+  },
+  errorContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 20,
+    backgroundColor: "#f8f8f8",
+  },
+  errorText: {
+    fontSize: 18,
+    color: "#FF6F00",
+    marginBottom: 20,
+    textAlign: "center",
+  },
+  retryButton: {
+    backgroundColor: "#FF6F00",
+    padding: 10,
+    borderRadius: 5,
+  },
+  retryButtonText: {
+    color: "#FFFFFF",
+    fontSize: 16,
+  },
+  currentUserText: {
+    color: "#FFFFFF",
+  },
+  otherUserText: {
+    color: "#333333",
+  },
+  currentUserTime: {
+    color: "#FFFFFF",
+    opacity: 0.7,
+  },
+  otherUserTime: {
+    color: "#666666",
+  },
+  sendButtonDisabled: {
+    opacity: 0.7,
   },
 });
 

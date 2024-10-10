@@ -35,6 +35,8 @@ const LoginScreen = ({ navigation }) => {
 
         // Save the JWT token to AsyncStorage
         await AsyncStorage.setItem("authToken", data.token);
+        // console.log(JSON.stringify(data.user));
+        await AsyncStorage.setItem("currentUser", JSON.stringify(data.user));
 
         Alert.alert("Success", "Logged in successfully!", [
           {

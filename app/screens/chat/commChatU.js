@@ -105,10 +105,11 @@ const CommunityChatU = ({ navigation }) => {
         selectedSeller._id,
         message
       );
-      setChats([newChat, ...chats]);
+      // setChats([newChat, ...chats]);
       setModalVisible(false);
       setSelectedSeller(null);
       setMessage("");
+      checkAuthAndLoadData();
     } catch (err) {
       console.error("Failed to start new chat:", err);
     }

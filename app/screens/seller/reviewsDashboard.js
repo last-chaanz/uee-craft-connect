@@ -1268,7 +1268,7 @@ const styles = StyleSheet.create({
   replyButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#007BFF',
+    backgroundColor: '#FF6F00',
     padding: 10,
     borderRadius: 5,
     marginTop: 10,

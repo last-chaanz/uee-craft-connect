@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   ScrollView,
   SafeAreaView,
+  Alert,
   Dimensions,
   Image,
 } from "react-native";
@@ -36,6 +37,27 @@ const SellerDashboard = ({ navigation }) => {
     setCurrentUser(user);
   };
 
+  const handleLogout = async () => {
+    try {
+      // Clear the token from AsyncStorage
+      await AsyncStorage.removeItem("currentUser");
+
+      // Alert the user that they have logged out
+      Alert.alert("Logged Out", "You have successfully logged out.", [
+        {
+          text: "OK",
+          onPress: () => navigation.navigate("RoleSelectionScreen"),
+        },
+      ]);
+    } catch (error) {
+      console.error("Logout error: ", error);
+      Alert.alert(
+        "Error",
+        "An error occurred during logout. Please try again."
+      );
+    }
+  };
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <ScrollView contentContainerStyle={styles.scrollContainer}>
@@ -46,13 +68,19 @@ const SellerDashboard = ({ navigation }) => {
           <TouchableOpacity onPress={() => {}}>
             <Icon name="menu" size={30} color="#000" />
           </TouchableOpacity>
-          <TouchableOpacity>
+          {/* <TouchableOpacity>
             <Image
               source={{
                 uri: "https://res.cloudinary.com/dtktpemb7/image/upload/v1683432593/cld-sample.jpg",
               }}
               style={styles.topBarImage}
             />
+          </TouchableOpacity> */}
+
+          {/* Logout Button */}
+          <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+            <Icon name="log-out-outline" size={24} color="#FFF" />
+            <Text style={styles.logoutText}>Logout</Text>
           </TouchableOpacity>
         </View>
 
@@ -134,10 +162,24 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     backgroundColor: "#FFF",
   },
-  topBarImage: {
-    width: 30,
-    height: 30,
-    borderRadius: 15,
+  // topBarImage: {
+  //   width: 30,
+  //   height: 30,
+  //   borderRadius: 15,
+  // },
+  logoutButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#FF6F00",
+    paddingVertical: 5,
+    paddingHorizontal: 15,
+    borderRadius: 20,
+  },
+  logoutText: {
+    color: "#FFF",
+    marginLeft: 5,
+    fontSize: 16,
+    fontWeight: "600",
   },
   scrollContainer: {
     flexGrow: 1,

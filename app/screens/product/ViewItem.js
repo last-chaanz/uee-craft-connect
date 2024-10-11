@@ -234,7 +234,7 @@ const ViewItem = ({ route, navigation }) => {
                   "Error",
                   `Bid amount must be greater than the current highest bid of $${currentHighestBid}.`
                 );
-              } else {
+              } else if (!isNaN(enteredBidAmount)) {
                 setBidAmount(text); // Only update bidAmount if it passes validation
               }
             }}

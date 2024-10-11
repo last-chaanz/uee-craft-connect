@@ -110,4 +110,18 @@ export const chatService = {
       throw error;
     }
   },
+
+  deletePost: async (postId) => {
+    try {
+      const config = await getAuthHeader();
+      const response = await axios.delete(
+        `${API_BASE_URL}/api/posts/${postId}`,
+        config
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Error deleting post:", error);
+      throw error;
+    }
+  },
 };

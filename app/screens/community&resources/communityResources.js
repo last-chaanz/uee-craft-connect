@@ -11,6 +11,7 @@ import {
   Modal,
   Dimensions,
   ActivityIndicator,
+  Alert,
 } from "react-native";
 import Icon from "react-native-vector-icons/Ionicons";
 import CreatePost from "./createPost";
@@ -18,6 +19,7 @@ import CreatePostNew from "./createPostNew";
 import ArticleList from "./articleList";
 import { chatService } from "../chat/chatService";
 // import UserLogo from "../../assets/user-logo.avif"
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 // Dummy data for Community Posts
 const communityPosts = [
@@ -208,9 +210,82 @@ const CommunityResources = ({ navigation }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  const [currentUser, setCurrentUser] = useState(null);
+  const [selectedPostId, setSelectedPostId] = useState(null);
+
   useEffect(() => {
     fetchPosts();
+    getCurrentUser();
   }, []);
+
+  const getCurrentUser = async () => {
+    try {
+      const userJson = await AsyncStorage.getItem("currentUser");
+      if (userJson) {
+        const user = JSON.parse(userJson);
+        setCurrentUser(user);
+      }
+    } catch (error) {
+      console.error("Error fetching current user:", error);
+    }
+  };
+
+  const handleDeletePost = async (postId) => {
+    Alert.alert("Delete Post", "Are you sure you want to delete this post?", [
+      {
+        text: "Cancel",
+        style: "cancel",
+      },
+      {
+        text: "Delete",
+        onPress: async () => {
+          try {
+            await chatService.deletePost(postId);
+            // Refresh posts after deletion
+            fetchPosts();
+          } catch (error) {
+            console.error("Error deleting post:", error);
+            Alert.alert("Error", "Failed to delete post. Please try again.");
+          }
+        },
+        style: "destructive",
+      },
+    ]);
+  };
+
+  const PostMenu = ({ post }) => {
+    if (currentUser?.id !== post.author?._id) return null;
+
+    return (
+      <TouchableOpacity
+        style={styles.menuButton}
+        onPress={() =>
+          setSelectedPostId(selectedPostId === post._id ? null : post._id)
+        }
+      >
+        <Icon name="ellipsis-vertical" size={20} color="#666" />
+      </TouchableOpacity>
+    );
+  };
+
+  const PostMenuPopup = ({ post }) => {
+    if (selectedPostId !== post._id) return null;
+
+    return (
+      <View style={styles.menuPopup}>
+        <TouchableOpacity
+          style={styles.menuItem}
+          onPress={() => {
+            setSelectedPostId(null);
+            handleDeletePost(post._id);
+          }}
+        >
+          <Icon name="trash-outline" size={20} color="#FF0000" />
+          <Text style={styles.menuItemText}>Delete</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  };
 
   const fetchPosts = async () => {
     try {
@@ -275,6 +350,18 @@ const CommunityResources = ({ navigation }) => {
       <Image source={{ uri: userLogo }} style={styles.authorImage} />
 
       <View style={styles.postCard}>
+        <View style={styles.postHeader}>
+          <View style={styles.authorInfo}>
+            <Text style={styles.authorName}>
+              {item.author?.name || "Unknown"}
+            </Text>
+            <Text style={styles.timestamp}>
+              {new Date(item.timestamp).toLocaleDateString()}
+            </Text>
+          </View>
+          <PostMenu post={item} />
+        </View>
+        <PostMenuPopup post={item} />
         <Image source={{ uri: item.imageUrl }} style={styles.postImage} />
         <View style={styles.postContent}>
           <Text style={styles.postTitle}>{item.title}</Text>
@@ -615,6 +702,8 @@ const styles = StyleSheet.create({
     width: 60,
     height: 60,
     borderRadius: 30,
+    borderWidth: 3,
+    borderColor: "white",
     alignItems: "center",
     justifyContent: "center",
     elevation: 5,
@@ -648,6 +737,48 @@ const styles = StyleSheet.create({
   noPostsText: {
     fontSize: 16,
     color: "#666",
+  },
+  postHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    padding: 10,
+  },
+  authorInfo: {
+    flex: 1,
+  },
+  authorName: {
+    fontSize: 14,
+    fontWeight: "bold",
+  },
+  menuButton: {
+    padding: 5,
+  },
+  menuPopup: {
+    position: "absolute",
+    top: 40,
+    right: 10,
+    backgroundColor: "white",
+    borderRadius: 5,
+    padding: 5,
+    zIndex: 1000,
+    elevation: 5,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+  },
+  menuItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    padding: 10,
+  },
+  menuItemText: {
+    marginLeft: 10,
+    color: "#FF0000",
   },
 });
 

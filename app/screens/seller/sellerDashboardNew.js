@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -7,12 +7,16 @@ import {
   ScrollView,
   SafeAreaView,
   Dimensions,
+  Image,
 } from "react-native";
 import Icon from "react-native-vector-icons/Ionicons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const { width } = Dimensions.get("window");
 
 const SellerDashboard = ({ navigation }) => {
+  const [currentUser, setCurrentUser] = useState(null);
+
   const menuItems = [
     { name: "Reports", icon: "bar-chart-outline", screen: "Reports" },
     { name: "Analytics", icon: "analytics-outline", screen: "Analytics" },
@@ -22,12 +26,40 @@ const SellerDashboard = ({ navigation }) => {
     { name: "Products", icon: "cash-outline", screen: "SellerAllProducts" },
   ];
 
+  useEffect(() => {
+    loadSellerData();
+  }, []);
+
+  const loadSellerData = async () => {
+    const userJson = await AsyncStorage.getItem("currentUser");
+    const user = JSON.parse(userJson);
+    setCurrentUser(user);
+  };
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         {/* Header */}
+
+        <View style={styles.topBar}>
+          {/* <TouchableOpacity onPress={() => navigation.openDrawer()}> */}
+          <TouchableOpacity onPress={() => {}}>
+            <Icon name="menu" size={30} color="#000" />
+          </TouchableOpacity>
+          <TouchableOpacity>
+            <Image
+              source={{
+                uri: "https://res.cloudinary.com/dtktpemb7/image/upload/v1683432593/cld-sample.jpg",
+              }}
+              style={styles.topBarImage}
+            />
+          </TouchableOpacity>
+        </View>
+
         <View style={styles.header}>
-          <Text style={styles.title}>Seller Dashboard</Text>
+          <Text style={styles.title}>
+            Welcome Back {currentUser ? currentUser.name : "Seller"}
+          </Text>
         </View>
 
         {/* Quick Stats */}
@@ -94,6 +126,19 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#FF6F00",
   },
+  topBar: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    backgroundColor: "#FFF",
+  },
+  topBarImage: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+  },
   scrollContainer: {
     flexGrow: 1,
     backgroundColor: "#f8f8f8",
@@ -113,7 +158,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 40,
     paddingVertical: 10,
     borderRadius: 10,
-    backgroundColor: "#181C2E",
+
     fontSize: 24,
     marginTop: 40,
     fontWeight: "bold",
@@ -192,6 +237,8 @@ const styles = StyleSheet.create({
     width: 60,
     height: 60,
     borderRadius: 30,
+    borderWidth: 3,
+    borderColor: "white",
     alignItems: "center",
     justifyContent: "center",
     elevation: 8,

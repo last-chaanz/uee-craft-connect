@@ -76,4 +76,20 @@ const getAllPosts = async (req, res) => {
   }
 };
 
-module.exports = { createPost, getAllPosts };
+//delete post
+const deletePost = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const deletedPost = await Post.findByIdAndDelete(id);
+
+    if (!deletedPost) {
+      return res.status(404).json({ error: "Post not found" });
+    }
+
+    res.status(200).json({ message: "Post deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ error: error.message }); // 500 Internal Server Error
+  }
+};
+
+module.exports = { createPost, getAllPosts, deletePost };

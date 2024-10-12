@@ -217,7 +217,7 @@ const ViewItem = ({ route, navigation }) => {
             <View style={styles.biddingInfoItem}>
               <Text style={styles.biddingInfoLabel}>Current Highest Bid:</Text>
               <Text style={styles.biddingInfoValue}>
-                $ {currentHighestBid}.00
+                $ {currentHighestBid === 0 ? product.price : currentHighestBid}.00
               </Text>
             </View>
           </View>
@@ -234,7 +234,7 @@ const ViewItem = ({ route, navigation }) => {
                   "Error",
                   `Bid amount must be greater than the current highest bid of $${currentHighestBid}.`
                 );
-              } else if (!isNaN(enteredBidAmount)) {
+              } else {
                 setBidAmount(text); // Only update bidAmount if it passes validation
               }
             }}
